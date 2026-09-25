@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProTrainer Finance | Gestão FIT Inteligente</title>
+    <style>
+        :root {
+            --bg-primary: #121212;
+            --bg-card: #1e1e1e;
+            --accent-yellow: #FFD700;
+            --text-main: #FFFFFF;
+            --text-sub: #A0A0A0;
+            --status-green: #2ECC71;
+            --status-blue: #3498DB;
+            --status-red: #E74C3C;
+            --status-orange: #E67E22;
+            --status-blocked: #555555;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+        }
+
+        .top-navbar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 60px;
+            background-color: var(--bg-card);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            border-bottom: 2px solid var(--accent-yellow);
+            z-index: 1000;
+        }
+
+        .user-profile-info { display: flex; align-items: center; gap: 12px; }
+        .user-avatar {
+            width: 40px; height: 40px; border-radius: 50%;
+            border: 2px solid var(--accent-yellow); background-color: #333;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; color: var(--accent-yellow);
+        }
+        .user-details { display: flex; flex-direction: column; }
+        .user-name { font-size: 14px; font-weight: bold; }
+        .user-email { font-size: 11px; color: var(--text-sub); }
+
+        .plan-status-badge { display: flex; align-items: center; gap: 10px; }
+        .badge-trial {
+            background-color: rgba(255, 215, 0, 0.15); color: var(--accent-yellow);
+            padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: bold;
+            border: 1px solid var(--accent-yellow);
+        }
+        .btn-upgrade {
+            background-color: var(--accent-yellow); color: #000; border: none;
+            padding: 6px 14px; border-radius: 6px; font-weight: bold; cursor: pointer;
+        }
+
+        .main-container {
+            margin-top: 80px; padding: 20px; max-width: 1000px;
+            margin-left: auto; margin-right: auto;
+        }
+
+        .brand-header { text-align: center; margin-bottom: 25px; }
+        .brand-title { color: var(--accent-yellow); font-size: 28px; margin: 0; font-weight: 800; }
+        .brand-slogan { color: var(--text-sub); font-size: 14px; margin-top: 4px; font-style: italic; }
+
+        .section-box {
+            background-color: var(--bg-card); border-radius: 8px;
+            padding: 16px; margin-bottom: 25px; border: 1px solid #333;
+        }
+        .section-title { font-size: 16px; font-weight: bold; color: var(--accent-yellow); margin-bottom: 12px; }
+
+        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px; }
+        .metric-card { background-color: #252525; padding: 14px; border-radius: 6px; border-left: 4px solid var(--accent-yellow); }
+        .metric-label { font-size: 12px; color: var(--text-sub); }
+        .metric-val { font-size: 20px; font-weight: bold; margin-top: 4px; color: #fff; }
+
+        .student-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+        .student-card {
+            background-color: #252525; padding: 14px; border-radius: 6px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .student-status {
+            font-size: 10px; text-transform: uppercase; padding: 2px 6px;
+            border-radius: 4px; font-weight: bold; cursor: pointer;
+        }
+        .status-active { background-color: var(--status-green); color: #000; }
+        .status-inactive { background-color: var(--status-red); color: #fff; }
+
+        .class-card {
+            background-color: #252525; padding: 12px 16px; border-radius: 6px;
+            margin-bottom: 8px; display: flex; justify-content: space-between;
+            align-items: center; border-left: 5px solid var(--status-blue);
+        }
+        .class-card.status-realizada { border-left-color: var(--status-green); }
+        .class-card.status-falta { border-left-color: var(--status-red); }
+        .class-card.status-remarcada { border-left-color: var(--status-orange); }
+        .class-card.status-bloqueado { border-left-color: var(--status-blocked); background-color: #1a1a1a; opacity: 0.7; }
+
+        .class-info-name { font-weight: bold; font-size: 14px; }
+        .class-info-sub { font-size: 12px; color: var(--text-sub); }
+        .class-time { font-weight: bold; color: var(--accent-yellow); }
+
+        .btn-sm {
+            background: none; border: 1px solid #444; color: var(--text-sub);
+            border-radius: 4px; padding: 4px 8px; font-size: 11px; cursor: pointer; margin-left: 4px;
+        }
+        .btn-sm:hover { color: #fff; border-color: var(--accent-yellow); }
+        .btn-whatsapp { border-color: #25D366; color: #25D366; }
+        .btn-whatsapp:hover { background-color: #25D366; color: #000; }
+
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 12px; color: var(--text-sub); margin-bottom: 4px; }
+        .form-control {
+            width: 100%; padding: 8px; background-color: #121212; border: 1px solid #333;
+            color: #fff; border-radius: 4px; box-sizing: border-box;
+        }
+
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8); display: none; align-items: center;
+            justify-content: center; z-index: 2000;
+        }
+        .modal-content {
+            background-color: var(--bg-card); padding: 20px; border-radius: 8px;
+            width: 90%; max-width: 400px; border: 1px solid var(--accent-yellow);
+        }
+        .modal-title { font-size: 16px; font-weight: bold; color: var(--accent-yellow); margin-bottom: 12px; }
+        .modal-option {
+            background: #252525; padding: 10px; border-radius: 4px; margin-bottom: 8px;
+            cursor: pointer; font-size: 13px; border: 1px solid #333;
+        }
+        .modal-option:hover { border-color: var(--accent-yellow); color: var(--accent-yellow); }
+    </style>
+</head>
+<body>
+
+    <header class="top-navbar">
+        <div class="user-profile-info">
+            <div class="user-avatar" id="navAvatar">PT</div>
+            <div class="user-details">
+                <span class="user-name" id="navName">Personal Trainer</span>
+                <span class="user-email" id="navEmail">personal@protrainer.fit</span>
+            </div>
+        </div>
+        <div class="plan-status-badge">
+            <span class="badge-trial" id="navTrialDays">Teste Gratuito: 14 Dias Restantes</span>
+            <button class="btn-upgrade" onclick="alert('Redirecionando para assinatura Pro...')">Assinar Plano Pro</button>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <div class="brand-header">
+            <h1 class="brand-title">ProTrainer Finance</h1>
+            <div class="brand-slogan">Gestão FIT Inteligente</div>
+        </div>
+
+        <section class="section-box">
+            <span class="section-title">📊 Resumo do Mês</span>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Faturamento Previsto</div>
+                    <div class="metric-val" id="totalRevenue">R$ 0,00</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Alunos Ativos</div>
+                    <div class="metric-val" id="activeStudentsCount">0</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Aulas Agendadas Hoje</div>
+                    <div class="metric-val" id="todayClassesCount">0</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section-box">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <span class="section-title">📅 Aulas de Hoje</span>
+                <button class="btn-sm" onclick="addBlockedSlot()">+ Bloquear Horário</button>
+            </div>
+            <div id="classList"></div>
+        </section>
+
+        <section class="section-box">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <span class="section-title">👥 Gestão de Alunos</span>
+                <button class="btn-sm" onclick="toggleStudentForm()">+ Cadastrar Aluno</button>
+            </div>
+
+            <div id="studentForm" style="display: none; background-color: #1a1a1a; padding: 15px; border-radius: 6px; margin-bottom: 15px;">
+                <div class="form-group">
+                    <label>Nome do Aluno</label>
+                    <input type="text" id="stuName" class="form-control" placeholder="Ex: Rodrigo Alves">
+                </div>
+                <div class="form-group">
+                    <label>Tipo de Atendimento</label>
+                    <select id="stuType" class="form-control">
+                        <option value="Presencial">Aluno de Personal Trainer (Presencial)</option>
+                        <option value="Online">Consultoria On-line</option>
+                        <option value="Creditos">Créditos de Aulas (Pacotes)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Tipo do Plano</label>
+                    <select id="stuPlanType" class="form-control">
+                        <option value="Mensal">Mensal</option>
+                        <option value="Semestral">Semestral</option>
+                        <option value="Anual">Anual</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Valor da Mensalidade (R$)</label>
+                    <input type="number" id="stuPrice" class="form-control" placeholder="200.00">
+                </div>
+                <button class="btn-upgrade" style="width: 100%; margin-top: 10px;" onclick="saveStudent()">Salvar Aluno</button>
+            </div>
+
+            <div class="student-grid" id="studentsList"></div>
+        </section>
+    </main>
+
+    <!-- MODAL FALTA -->
+    <div class="modal-overlay" id="absenceModal">
+        <div class="modal-content">
+            <div class="modal-title">Registrar Motivo da Falta</div>
+            <div class="modal-option" onclick="confirmAbsence('Falta do aluno - Imprevisto')">🚨 Falta do aluno - Houve um imprevisto</div>
+            <div class="modal-option" onclick="confirmAbsence('Falta do aluno - Mal-estar')">🤒 Falta do aluno - Não está se sentindo bem</div>
+            <div class="modal-option" onclick="confirmAbsence('Cancelamento Antecipado')">📅 Cancelamento antecipado avisado</div>
+            <button class="btn-sm" style="width: 100%; margin-top: 10px;" onclick="closeModals()">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- MODAL REMARCAÇÃO -->
+    <div class="modal-overlay" id="rescheduleModal">
+        <div class="modal-content">
+            <div class="modal-title">Remarcar Aula & Enviar WhatsApp</div>
+            <p style="font-size: 12px; color: var(--text-sub);">Escolha um dos horários vagos disponíveis:</p>
+            <div class="modal-option" onclick="sendWhatsAppReschedule('Amanhã às 15:00')">🗓️ Amanhã às 15:00</div>
+            <div class="modal-option" onclick="sendWhatsAppReschedule('Sexta-feira às 10:00')">🗓️ Sexta-feira às 10:00</div>
+            <button class="btn-sm" style="width: 100%; margin-top: 10px;" onclick="closeModals()">Cancelar</button>
+        </div>
+    </div>
+
+    <script>
+        let appData = {
+            students: [],
+            classes: []
+        };
+
+        let currentSelectedClassId = null;
+        let currentStudentName = '';
+
+        function loadFromStorage() {
+            const stored = localStorage.getItem('protrainer_data');
+            if (stored) {
+                appData = JSON.parse(stored);
+            } else {
+                appData = {
+                    students: [{ id: 1, name: 'Rodrigo Alves', type: 'Presencial', price: 200, active: true }],
+                    classes: [
+                        { id: 1, name: 'Fernanda Lima', sub: 'Presencial • Aguardando aula', time: '09:00', status: 'status-agendada' },
+                        { id: 2, name: 'Horário Bloqueado / Indisponível', sub: 'Intervalo Almoço / Treino Pessoal', time: '12:00', status: 'status-bloqueado' }
+                    ]
+                };
+                saveToStorage();
+            }
+            renderAll();
+        }
+
+        function saveToStorage() {
+            localStorage.setItem('protrainer_data', JSON.stringify(appData));
+            renderAll();
+        }
+
+        function renderAll() {
+            renderMetrics();
+            renderStudents();
+            renderClasses();
+        }
+
+        function renderMetrics() {
+            const activeStudents = appData.students.filter(s => s.active);
+            const total = activeStudents.reduce((acc, s) => acc + Number(s.price || 0), 0);
+
+            document.getElementById('totalRevenue').innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
+            document.getElementById('activeStudentsCount').innerText = activeStudents.length;
+            document.getElementById('todayClassesCount').innerText = appData.classes.length;
+        }
+
+        function renderStudents() {
+            const container = document.getElementById('studentsList');
+            container.innerHTML = '';
+
+            appData.students.forEach(s => {
+                const card = document.createElement('div');
+                card.className = 'student-card';
+                card.innerHTML = `
+                    <div>
+                        <div style="font-weight: bold;">${s.name}</div>
+                        <div style="font-size: 12px; color: var(--text-sub);">${s.type}</div>
+                        <div style="font-size: 11px; color: var(--accent-yellow);">R$ ${Number(s.price).toFixed(2).replace('.', ',')}</div>
+                    </div>
+                    <div>
+                        <span class="student-status ${s.active ? 'status-active' : 'status-inactive'}" onclick="toggleStudentStatus(${s.id})">
+                            ${s.active ? 'Ativo' : 'Inativo'}
+                        </span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderClasses() {
+            const container = document.getElementById('classList');
+            container.innerHTML = '';
+
+            appData.classes.forEach(c => {
+                const card = document.createElement('div');
+                card.className = `class-card ${c.status}`;
+                card.id = `class-${c.id}`;
+
+                let actions = '';
+                if (c.status === 'status-bloqueado') {
+                    actions = `<button class="btn-sm" onclick="removeClass(${c.id})">Desbloquear</button>`;
+                } else {
+                    actions = `
+                        <button class="btn-sm" onclick="openAbsenceModal(${c.id}, '${c.name}')">Falta</button>
+                        <button class="btn-sm btn-whatsapp" onclick="openRescheduleModal(${c.id}, '${c.name}')">Remarcar</button>
+                    `;
+                }
+
+                card.innerHTML = `
+                    <div>
+                        <div class="class-info-name" style="${c.status === 'status-bloqueado' ? 'color:#888' : ''}">${c.name}</div>
+                        <div class="class-info-sub">${c.sub}</div>
+                    </div>
+                    <div>
+                        <span class="class-time" style="${c.status === 'status-bloqueado' ? 'color:#888' : ''}">${c.time}</span>
+                        ${actions}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function toggleStudentForm() {
+            const form = document.getElementById('studentForm');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function saveStudent() {
+            const name = document.getElementById('stuName').value;
+            const type = document.getElementById('stuType').value;
+            const price = document.getElementById('stuPrice').value;
+
+            if (!name) return alert("Digite o nome do aluno.");
+
+            appData.students.push({
+                id: Date.now(),
+                name,
+                type,
+                price: parseFloat(price) || 0,
+                active: true
+            });
+
+            saveToStorage();
+            toggleStudentForm();
+            document.getElementById('stuName').value = '';
+            document.getElementById('stuPrice').value = '';
+        }
+
+        function toggleStudentStatus(id) {
+            const student = appData.students.find(s => s.id === id);
+            if (student) {
+                student.active = !student.active;
+                saveToStorage();
+            }
+        }
+
+        function removeClass(id) {
+            appData.classes = appData.classes.filter(c => c.id !== id);
+            saveToStorage();
+        }
+
+        function addBlockedSlot() {
+            appData.classes.push({
+                id: Date.now(),
+                name: 'Horário Bloqueado / Indisponível',
+                sub: 'Intervalo Personalizado',
+                time: '13:00',
+                status: 'status-bloqueado'
+            });
+            saveToStorage();
+        }
+
+        function openAbsenceModal(classId, studentName) {
+            currentSelectedClassId = classId;
+            currentStudentName = studentName;
+            document.getElementById('absenceModal').style.display = 'flex';
+        }
+
+        function openRescheduleModal(classId, studentName) {
+            currentSelectedClassId = classId;
+            currentStudentName = studentName;
+            document.getElementById('rescheduleModal').style.display = 'flex';
+        }
+
+        function closeModals() {
+            document.getElementById('absenceModal').style.display = 'none';
+            document.getElementById('rescheduleModal').style.display = 'none';
+        }
+
+        function confirmAbsence(reason) {
+            const cls = appData.classes.find(c => c.id === currentSelectedClassId);
+            if (cls) {
+                cls.status = 'status-falta';
+                cls.sub = reason;
+                saveToStorage();
+            }
+            closeModals();
+        }
+
+        function sendWhatsAppReschedule(newTime) {
+            const cls = appData.classes.find(c => c.id === currentSelectedClassId);
+            if (cls) {
+                cls.status = 'status-remarcada';
+                cls.sub = `Remarcada para ${newTime}`;
+                saveToStorage();
+            }
+
+            const message = encodeURIComponent(`Olá ${currentStudentName}! Tudo bem? Remarquei a sua aula para ${newTime}. Te aguardo lá! 💪🏋️‍♂️`);
+            const whatsappUrl = `https://api.whatsapp.com/send?text=${message}`;
+
+            closeModals();
+            window.open(whatsappUrl, '_blank');
+        }
+
+        window.onload = loadFromStorage;
+    </script>
+</body>
+</html>
