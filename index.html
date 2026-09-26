@@ -1,403 +1,255 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ProTrainer Finance App</title>
-  
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- React & ReactDOM CDN -->
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  
-  <!-- Babel CDN para transpolar JSX -->
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  
-  <!-- Lucide Icons CDN -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-</head>
-<body class="bg-slate-900 text-slate-100 font-sans antialiased">
+import React, { useState } from 'react';
+import { 
+  Calendar, Clock, Users, DollarSign, Plus, Check, X, AlertTriangle, 
+  Eye, EyeOff, MessageSquare, Trash2, Edit3, Lock, Bell, ChevronRight, UserCheck, Phone
+} from 'lucide-react';
 
-  <div id="root"></div>
+export default function ProTrainerFinanceApp() {
+  // --- ESTADOS GERAIS ---
+  const [hideValues, setHideValues] = useState(false);
+  const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard', 'agenda', 'alunos'
+  const [diaSelecionado, setDiaSelecionado] = useState('Segunda');
 
-  <script type="text/babel">
-    const { useState, useEffect } = React;
+  // Perfil do Personal
+  const [userProfile] = useState({
+    nome: 'Personal Trainer',
+    cref: '000000-G/UF',
+    foto: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
+    dataInicioTeste: new Date().toISOString()
+  });
 
-    function ProTrainerFinanceApp() {
-      // --- ESTADOS E PERSISTÊNCIA (localStorage) ---
-      const [hideValues, setHideValues] = useState(false);
-      const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard', 'agenda', 'alunos', 'lembretes'
+  // BASE DE DADOS: Alunos
+  const [alunos, setAlunos] = useState([
+    { id: 1, nome: 'Lana Silva', telefone: '5511999999999', tipo: 'Aluno de Personal Trainer (Presencial)', plano: 'Mensal', valor: 450, inicio: '2026-09-01', termino: '2026-10-01', status: 'Ativo', saldoCreditos: 0 },
+    { id: 2, nome: 'Carlos Eduardo', telefone: '5511988888888', tipo: 'Créditos de Aulas', plano: 'Pacote 10 Aulas', valor: 800, inicio: '2026-09-10', termino: '2026-11-10', status: 'Ativo', saldoCreditos: 6 },
+    { id: 3, nome: 'Mariana Costa', telefone: '5511977777777', tipo: 'Consultoria On-line', plano: 'Semestral', valor: 250, inicio: '2026-08-01', termino: '2027-02-01', status: 'Ativo', saldoCreditos: 0 }
+  ]);
 
-      // Perfil e Teste Grátis
-      const [userProfile, setUserProfile] = useState(() => {
-        const saved = localStorage.getItem('pt_profile');
-        return saved ? JSON.parse(saved) : {
-          nome: 'Personal Trainer',
-          cref: '000000-G/UF',
-          whatsapp: '',
-          foto: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
-          dataInicioTeste: new Date().toISOString()
-        };
-      });
+  // BASE DE DADOS: Agenda da Semana
+  const [aulas, setAulas] = useState([
+    { id: 101, dia: 'Segunda', periodo: 'Manhã', hora: '07:00', alunoId: 1, alunoNome: 'Lana Silva', modalidade: 'Presencial', status: 'Realizada' },
+    { id: 102, dia: 'Segunda', periodo: 'Manhã', hora: '08:00', alunoId: 2, alunoNome: 'Carlos Eduardo', modalidade: 'Créditos', status: 'Agendada' },
+    { id: 103, dia: 'Segunda', periodo: 'Tarde', hora: '15:00', alunoId: 3, alunoNome: 'Mariana Costa', modalidade: 'Consultoria', status: 'Agendada' },
+    { id: 104, dia: 'Terça', periodo: 'Noite', hora: '19:00', alunoId: 1, alunoNome: 'Lana Silva', modalidade: 'Presencial', status: 'Livre' }
+  ]);
 
-      // Base de Dados: Alunos
-      const [alunos, setAlunos] = useState(() => {
-        const saved = localStorage.getItem('pt_alunos');
-        return saved ? JSON.parse(saved) : [];
-      });
+  // BASE DE DADOS: Central de Lembretes
+  const [lembretes, setLembretes] = useState([
+    { id: 1, titulo: 'Atraso avisado', texto: 'Lana informou que vai se atrasar 15 min.', prioridade: 'Amarelo', concluido: false },
+    { id: 2, titulo: 'Cobrança Mensalidade', texto: 'Verificar pagamento do plano da Mariana.', prioridade: 'Vermelho', concluido: false }
+  ]);
 
-      // Base de Dados: Agenda
-      const [aulas, setAulas] = useState(() => {
-        const saved = localStorage.getItem('pt_aulas');
-        return saved ? JSON.parse(saved) : [];
-      });
+  // Modais
+  const [showModalLembrete, setShowModalLembrete] = useState(false);
+  const [showModalAluno, setShowModalAluno] = useState(false);
+  const [novoLembrete, setNovoLembrete] = useState({ titulo: '', texto: '', prioridade: 'Amarelo' });
+  const [novoAluno, setNovoAluno] = useState({ nome: '', telefone: '', tipo: 'Aluno de Personal Trainer (Presencial)', plano: 'Mensal', valor: '', inicio: '', termino: '' });
 
-      // Base de Dados: Lembretes
-      const [lembretes, setLembretes] = useState(() => {
-        const saved = localStorage.getItem('pt_lembretes');
-        return saved ? JSON.parse(saved) : [];
-      });
+  // Funções de Ação
+  const handleAdicionarLembrete = (e) => {
+    e.preventDefault();
+    if (!novoLembrete.titulo) return;
+    setLembretes([{ ...novoLembrete, id: Date.now(), concluido: false }, ...lembretes]);
+    setShowModalLembrete(false);
+    setNovoLembrete({ titulo: '', texto: '', prioridade: 'Amarelo' });
+  };
 
-      // Guardar alterações no localStorage
-      useEffect(() => {
-        localStorage.setItem('pt_profile', JSON.stringify(userProfile));
-      }, [userProfile]);
+  const handleAdicionarAluno = (e) => {
+    e.preventDefault();
+    if (!novoAluno.nome || !novoAluno.inicio || !novoAluno.termino) return;
+    setAlunos([...alunos, { ...novoAluno, id: Date.now(), status: 'Ativo', saldoCreditos: 0, valor: Number(novoAluno.valor) }]);
+    setShowModalAluno(false);
+    setNovoAluno({ nome: '', telefone: '', tipo: 'Aluno de Personal Trainer (Presencial)', plano: 'Mensal', valor: '', inicio: '', termino: '' });
+  };
 
-      useEffect(() => {
-        localStorage.setItem('pt_alunos', JSON.stringify(alunos));
-      }, [alunos]);
+  const handleStatusAula = (aulaId, novoStatus) => {
+    setAulas(aulas.map(a => a.id === aulaId ? { ...a, status: novoStatus } : a));
+  };
 
-      useEffect(() => {
-        localStorage.setItem('pt_aulas', JSON.stringify(aulas));
-      }, [aulas]);
+  const enviarWhatsApp = (telefone, alunoNome, dia, hora) => {
+    const mensagem = encodeURIComponent(`Olá ${alunoNome}! Confirmando nossa aula de Personal agendada para ${dia} às ${hora}. Qualquer imprevisto me avise!`);
+    window.open(`https://wa.me/${telefone}?text=${mensagem}`, '_blank');
+  };
 
-      useEffect(() => {
-        localStorage.setItem('pt_lembretes', JSON.stringify(lembretes));
-      }, [lembretes]);
+  // Cálculo de Teste 14 dias
+  const diasRestantes = Math.max(0, 14 - Math.floor((new Date() - new Date(userProfile.dataInicioTeste)) / (1000 * 60 * 60 * 24)));
 
-      // Modais
-      const [showModalLembrete, setShowModalLembrete] = useState(false);
-      const [novoLembrete, setNovoLembrete] = useState({ titulo: '', texto: '', prioridade: 'Amarelo', alunoId: '' });
+  return (
+    <div className="min-h-screen bg-slate-900 text-slate-100 font-sans pb-24">
+      
+      {/* CABEÇALHO FIXO */}
+      <header className="sticky top-0 z-50 bg-slate-800/90 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <img src={userProfile.foto} alt="Perfil" className="w-10 h-10 rounded-full border-2 border-emerald-500 object-cover" />
+          <div>
+            <h1 className="text-sm font-bold text-slate-100">ProTrainer Finance</h1>
+            <p className="text-xs text-emerald-400 font-medium">Gestão FIT Inteligente</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-1 rounded-full font-bold">
+            Teste: {diasRestantes} dias
+          </span>
+          <button onClick={() => setHideValues(!hideValues)} className="p-2 rounded-lg bg-slate-700/50 text-slate-300">
+            {hideValues ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        </div>
+      </header>
 
-      const [showModalAluno, setShowModalAluno] = useState(false);
-      const [novoAluno, setNovoAluno] = useState({
-        nome: '', tipo: 'Aluno de Personal Trainer (Presencial)', plano: 'Mensal', valor: '', saldoCreditos: 0
-      });
-
-      const [showModalAula, setShowModalAula] = useState(false);
-      const [novaAula, setNovaAula] = useState({ dia: 'Segunda', hora: '08:00', alunoId: '', modalidade: 'Presencial' });
-
-      // Funções Lembretes
-      const handleAdicionarLembrete = (e) => {
-        e.preventDefault();
-        if (!novoLembrete.titulo) return;
-        const item = {
-          id: Date.now(),
-          titulo: novoLembrete.titulo,
-          texto: novoLembrete.texto,
-          prioridade: novoLembrete.prioridade,
-          data: new Date().toISOString().split('T')[0],
-          concluido: false,
-          alunoId: novoLembrete.alunoId ? Number(novoLembrete.alunoId) : null
-        };
-        setLembretes([item, ...lembretes]);
-        setShowModalLembrete(false);
-        setNovoLembrete({ titulo: '', texto: '', prioridade: 'Amarelo', alunoId: '' });
-      };
-
-      const toggleLembrete = (id) => {
-        setLembretes(lembretes.map(l => l.id === id ? { ...l, concluido: !l.concluido } : l));
-      };
-
-      const deletarLembrete = (id) => {
-        setLembretes(lembretes.filter(l => l.id !== id));
-      };
-
-      // Funções Alunos
-      const handleAdicionarAluno = (e) => {
-        e.preventDefault();
-        if (!novoAluno.nome || !novoAluno.valor) return;
-        const item = {
-          id: Date.now(),
-          nome: novoAluno.nome,
-          tipo: novoAluno.tipo,
-          plano: novoAluno.plano,
-          valor: Number(novoAluno.valor),
-          inicio: new Date().toISOString().split('T')[0],
-          status: 'Ativo',
-          saldoCreditos: Number(novoAluno.saldoCreditos) || 0
-        };
-        setAlunos([...alunos, item]);
-        setShowModalAluno(false);
-        setNovoAluno({ nome: '', tipo: 'Aluno de Personal Trainer (Presencial)', plano: 'Mensal', valor: '', saldoCreditos: 0 });
-      };
-
-      const deletarAluno = (id) => {
-        setAlunos(alunos.filter(a => a.id !== id));
-      };
-
-      // Funções Agenda
-      const handleAdicionarAula = (e) => {
-        e.preventDefault();
-        if (!novaAula.alunoId) return;
-        const alunoObj = alunos.find(a => a.id === Number(novaAula.alunoId));
-        const item = {
-          id: Date.now(),
-          dia: novaAula.dia,
-          hora: novaAula.hora,
-          alunoId: Number(novaAula.alunoId),
-          alunoNome: alunoObj ? alunoObj.nome : 'Aluno',
-          modalidade: novaAula.modalidade,
-          status: 'Agendada'
-        };
-        setAulas([...aulas, item]);
-        setShowModalAula(false);
-      };
-
-      const deletarAula = (id) => {
-        setAulas(aulas.filter(a => a.id !== id));
-      };
-
-      // Cálculos Financeiros
-      const totalRecebido = alunos.reduce((acc, a) => acc + (a.status === 'Ativo' ? Number(a.valor) : 0), 0);
-
-      // Cálculo de Teste de 14 dias
-      const dataInicio = new Date(userProfile.dataInicioTeste);
-      const hoje = new Date();
-      const diasPassados = Math.floor((hoje - dataInicio) / (1000 * 60 * 60 * 24));
-      const diasRestantes = Math.max(0, 14 - diasPassados);
-
-      return (
-        <div className="min-h-screen bg-slate-900 text-slate-100 font-sans pb-24">
-          
-          {/* CABEÇALHO FIXO */}
-          <header className="sticky top-0 z-40 bg-slate-800/90 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <img src={userProfile.foto} alt="Perfil" className="w-10 h-10 rounded-full border-2 border-emerald-500 object-cover" />
-              <div>
-                <h1 className="text-sm font-bold text-slate-100 leading-tight">ProTrainer Finance</h1>
-                <p className="text-xs text-emerald-400 font-medium">Gestão FIT Inteligente</p>
-              </div>
+      {/* 1. ABA DASHBOARD */}
+      {activeTab === 'dashboard' && (
+        <main className="p-4 space-y-6 max-w-lg mx-auto">
+          <section className="grid grid-cols-2 gap-3">
+            <div className="bg-slate-800/60 p-4 rounded-2xl border border-slate-700/50">
+              <span className="text-xs text-slate-400 block font-medium">Recebido no Mês</span>
+              <span className="text-xl font-extrabold text-emerald-400">{hideValues ? '••••••' : 'R$ 1.500,00'}</span>
             </div>
+            <div className="bg-slate-800/60 p-4 rounded-2xl border border-slate-700/50">
+              <span className="text-xs text-slate-400 block font-medium">A Receber</span>
+              <span className="text-xl font-extrabold text-amber-400">{hideValues ? '••••••' : 'R$ 700,00'}</span>
+            </div>
+          </section>
 
-            <div className="flex items-center gap-2">
-              <span className={`text-[10px] uppercase tracking-wider px-2 py-1 rounded-full font-bold ${diasRestantes > 0 ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-red-500/20 text-red-300'}`}>
-                {diasRestantes > 0 ? `Teste: ${diasRestantes} dias` : 'Expirado'}
-              </span>
-              <button onClick={() => setHideValues(!hideValues)} className="p-2 rounded-lg bg-slate-700/50 hover:bg-slate-700 text-slate-300 transition">
-                {hideValues ? '🙈' : '👁️'}
+          {/* CENTRAL DE LEMBRETES */}
+          <section className="bg-slate-800/60 p-4 rounded-2xl border border-slate-700/50 space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-bold text-slate-200 flex items-center gap-2">
+                <Bell size={16} className="text-amber-400" /> Central de Lembretes
+              </h2>
+              <button onClick={() => setShowModalLembrete(true)} className="text-xs bg-emerald-500 text-slate-950 font-bold px-2.5 py-1.5 rounded-lg flex items-center gap-1">
+                <Plus size={14} /> Criar
               </button>
             </div>
-          </header>
-
-          {/* DASHBOARD */}
-          {activeTab === 'dashboard' && (
-            <main className="p-4 space-y-6 max-w-lg mx-auto">
-              <section className="grid grid-cols-2 gap-3">
-                <div className="bg-slate-800/60 p-4 rounded-2xl border border-slate-700/50">
-                  <span className="text-xs text-slate-400 block font-medium">Faturação Total</span>
-                  <span className="text-xl font-extrabold text-emerald-400">
-                    {hideValues ? '••••••' : `R$ ${totalRecebido.toFixed(2)}`}
-                  </span>
-                </div>
-                <div className="bg-slate-800/60 p-4 rounded-2xl border border-slate-700/50">
-                  <span className="text-xs text-slate-400 block font-medium">Alunos Ativos</span>
-                  <span className="text-xl font-extrabold text-amber-400">
-                    {alunos.filter(a => a.status === 'Ativo').length}
-                  </span>
-                </div>
-              </section>
-
-              {/* CENTRAL DE LEMBRETES */}
-              <section className="bg-slate-800/60 p-4 rounded-2xl border border-slate-700/50 space-y-3">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-sm font-bold text-slate-200">Central de Lembretes</h2>
-                  <button 
-                    onClick={() => setShowModalLembrete(true)}
-                    className="text-xs bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-3 py-1.5 rounded-lg transition"
-                  >
-                    + Criar
+            <div className="space-y-2">
+              {lembretes.map((item) => (
+                <div key={item.id} className={`p-3 rounded-xl bg-slate-900/60 border-l-4 ${item.prioridade === 'Vermelho' ? 'border-red-500' : 'border-amber-500'} flex items-start justify-between`}>
+                  <div>
+                    <h4 className="text-xs font-bold text-slate-200">{item.titulo}</h4>
+                    <p className="text-xs text-slate-400 mt-0.5">{item.texto}</p>
+                  </div>
+                  <button onClick={() => setLembretes(lembretes.filter(l => l.id !== item.id))} className="text-slate-500 hover:text-red-400">
+                    <Trash2 size={14} />
                   </button>
                 </div>
-
-                <div className="space-y-2">
-                  {lembretes.length === 0 ? (
-                    <p className="text-xs text-slate-500 text-center py-4">Nenhum lembrete registado.</p>
-                  ) : (
-                    lembretes.map((item) => {
-                      const corBorda = item.prioridade === 'Vermelho' ? 'border-red-500' : item.prioridade === 'Amarelo' ? 'border-amber-500' : 'border-blue-500';
-                      return (
-                        <div key={item.id} className={`p-3 rounded-xl bg-slate-900/60 border-l-4 ${corBorda} border-y border-r border-slate-700/40 flex items-start justify-between gap-2`}>
-                          <div className="flex items-start gap-2.5">
-                            <button onClick={() => toggleLembrete(item.id)} className={`mt-0.5 w-4 h-4 rounded border flex items-center justify-center ${item.concluido ? 'bg-emerald-500 border-emerald-500 text-slate-950 text-xs font-bold' : 'border-slate-500'}`}>
-                              {item.concluido && '✓'}
-                            </button>
-                            <div>
-                              <h4 className={`text-xs font-bold ${item.concluido ? 'line-through text-slate-500' : 'text-slate-200'}`}>{item.titulo}</h4>
-                              <p className={`text-xs mt-0.5 ${item.concluido ? 'line-through text-slate-600' : 'text-slate-400'}`}>{item.texto}</p>
-                            </div>
-                          </div>
-                          <button onClick={() => deletarLembrete(item.id)} className="text-slate-500 hover:text-red-400 text-xs px-1">✕</button>
-                        </div>
-                      );
-                    })
-                  )}
-                </div>
-              </section>
-            </main>
-          )}
-
-          {/* AGENDA DA SEMANA */}
-          {activeTab === 'agenda' && (
-            <main className="p-4 space-y-4 max-w-lg mx-auto">
-              <div className="flex items-center justify-between">
-                <h2 className="text-base font-bold text-slate-100">Agenda Semanal</h2>
-                <button onClick={() => setShowModalAula(true)} className="text-xs bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-3 py-1.5 rounded-lg transition">
-                  + Nova Aula
-                </button>
-              </div>
-
-              {aulas.length === 0 ? (
-                <p className="text-xs text-slate-500 text-center py-8">Nenhuma aula agendada.</p>
-              ) : (
-                <div className="space-y-2">
-                  {aulas.map((aula) => (
-                    <div key={aula.id} className="p-3 bg-slate-800/60 rounded-xl border border-slate-700/50 flex items-center justify-between">
-                      <div>
-                        <span className="text-[10px] bg-slate-700 text-emerald-400 px-2 py-0.5 rounded font-bold">{aula.dia} - {aula.hora}</span>
-                        <h4 className="text-sm font-bold text-slate-100 mt-1">{aula.alunoNome}</h4>
-                        <p className="text-xs text-slate-400">{aula.modalidade}</p>
-                      </div>
-                      <button onClick={() => deletarAula(aula.id)} className="text-slate-500 hover:text-red-400 text-xs p-1">✕</button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </main>
-          )}
-
-          {/* ALUNOS */}
-          {activeTab === 'alunos' && (
-            <main className="p-4 space-y-4 max-w-lg mx-auto">
-              <div className="flex items-center justify-between">
-                <h2 className="text-base font-bold text-slate-100">Gestão de Alunos</h2>
-                <button onClick={() => setShowModalAluno(true)} className="text-xs bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-3 py-1.5 rounded-lg transition">
-                  + Novo Aluno
-                </button>
-              </div>
-
-              {alunos.length === 0 ? (
-                <p className="text-xs text-slate-500 text-center py-8">Nenhum aluno cadastrado.</p>
-              ) : (
-                <div className="space-y-3">
-                  {alunos.map((aluno) => (
-                    <div key={aluno.id} className="p-4 bg-slate-800/60 rounded-xl border border-slate-700/50 space-y-2">
-                      <div className="flex items-center justify-between">
-                        <h3 className="font-bold text-slate-100">{aluno.nome}</h3>
-                        <span className="text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-semibold">{aluno.status}</span>
-                      </div>
-                      <p className="text-xs text-slate-400">{aluno.tipo} • {aluno.plano}</p>
-                      <div className="flex items-center justify-between pt-2 border-t border-slate-700/40 text-xs">
-                        <span className="font-bold text-emerald-400">{hideValues ? '••••••' : `R$ ${Number(aluno.valor).toFixed(2)}`}</span>
-                        <button onClick={() => deletarAluno(aluno.id)} className="text-red-400 hover:underline">Eliminar</button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </main>
-          )}
-
-          {/* MODAIS */}
-          {/* Modal Lembrete */}
-          {showModalLembrete && (
-            <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-              <div className="bg-slate-800 border border-slate-700 rounded-2xl p-5 w-full max-w-md space-y-4">
-                <h3 className="font-bold text-slate-100">Novo Lembrete</h3>
-                <form onSubmit={handleAdicionarLembrete} className="space-y-3">
-                  <input type="text" required placeholder="Título" value={novoLembrete.titulo} onChange={(e) => setNovoLembrete({ ...novoLembrete, titulo: e.target.value })} className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm" />
-                  <select value={novoLembrete.prioridade} onChange={(e) => setNovoLembrete({ ...novoLembrete, prioridade: e.target.value })} className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm">
-                    <option value="Vermelho">Vermelho (Urgente)</option>
-                    <option value="Amarelo">Amarelo (Aviso)</option>
-                    <option value="Azul">Azul (Geral)</option>
-                  </select>
-                  <textarea rows="3" placeholder="Detalhes" value={novoLembrete.texto} onChange={(e) => setNovoLembrete({ ...novoLembrete, texto: e.target.value })} className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm resize-none"></textarea>
-                  <div className="flex gap-2">
-                    <button type="button" onClick={() => setShowModalLembrete(false)} className="flex-1 bg-slate-700 p-2 rounded-xl text-sm">Cancelar</button>
-                    <button type="submit" className="flex-1 bg-emerald-500 text-slate-950 font-bold p-2 rounded-xl text-sm">Salvar</button>
-                  </div>
-                </form>
-              </div>
+              ))}
             </div>
-          )}
+          </section>
+        </main>
+      )}
 
-          {/* Modal Aluno */}
-          {showModalAluno && (
-            <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-              <div className="bg-slate-800 border border-slate-700 rounded-2xl p-5 w-full max-w-md space-y-4">
-                <h3 className="font-bold text-slate-100">Registar Novo Aluno</h3>
-                <form onSubmit={handleAdicionarAluno} className="space-y-3">
-                  <input type="text" required placeholder="Nome do Aluno" value={novoAluno.nome} onChange={(e) => setNovoAluno({ ...novoAluno, nome: e.target.value })} className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm" />
-                  <select value={novoAluno.tipo} onChange={(e) => setNovoAluno({ ...novoAluno, tipo: e.target.value })} className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm">
-                    <option>Aluno Presencial</option>
-                    <option>Créditos de Aulas</option>
-                    <option>Consultoria On-line</option>
-                  </select>
-                  <input type="number" required placeholder="Valor (R$)" value={novoAluno.valor} onChange={(e) => setNovoAluno({ ...novoAluno, valor: e.target.value })} className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm" />
-                  <div className="flex gap-2">
-                    <button type="button" onClick={() => setShowModalAluno(false)} className="flex-1 bg-slate-700 p-2 rounded-xl text-sm">Cancelar</button>
-                    <button type="submit" className="flex-1 bg-emerald-500 text-slate-950 font-bold p-2 rounded-xl text-sm">Salvar Aluno</button>
+      {/* 2. ABA AGENDA DA SEMANA */}
+      {activeTab === 'agenda' && (
+        <main className="p-4 space-y-4 max-w-lg mx-auto">
+          {/* DIAS DA SEMANA */}
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+            {['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'].map(dia => (
+              <button 
+                key={dia} 
+                onClick={() => setDiaSelecionado(dia)}
+                className={`px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap ${diaSelecionado === dia ? 'bg-emerald-500 text-slate-950' : 'bg-slate-800 text-slate-400'}`}
+              >
+                {dia}
+              </button>
+            ))}
+          </div>
+
+          {/* CARD AULAS POR PERÍODO */}
+          {['Manhã', 'Tarde', 'Noite'].map(periodo => (
+            <div key={periodo} className="space-y-2">
+              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">{periodo}</h3>
+              {aulas.filter(a => a.dia === diaSelecionado && a.periodo === periodo).map(aula => (
+                <div key={aula.id} className="p-4 rounded-2xl bg-slate-800/80 border border-slate-700/50 flex items-center justify-between">
+                  <div>
+                    <span className="text-xs font-bold text-emerald-400">{aula.hora}</span>
+                    <h4 className="text-sm font-bold text-slate-100">{aula.alunoNome}</h4>
+                    <span className="text-[10px] text-slate-400">{aula.modalidade}</span>
                   </div>
-                </form>
-              </div>
-            </div>
-          )}
-
-          {/* Modal Aula */}
-          {showModalAula && (
-            <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-              <div className="bg-slate-800 border border-slate-700 rounded-2xl p-5 w-full max-w-md space-y-4">
-                <h3 className="font-bold text-slate-100">Agendar Aula</h3>
-                <form onSubmit={handleAdicionarAula} className="space-y-3">
-                  <select value={novaAula.dia} onChange={(e) => setNovaAula({ ...novaAula, dia: e.target.value })} className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm">
-                    <option>Segunda</option><option>Terça</option><option>Quarta</option><option>Quinta</option><option>Sexta</option><option>Sábado</option>
-                  </select>
-                  <input type="time" value={novaAula.hora} onChange={(e) => setNovaAula({ ...novaAula, hora: e.target.value })} className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm" />
-                  <select value={novaAula.alunoId} onChange={(e) => setNovaAula({ ...novaAula, alunoId: e.target.value })} className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm" required>
-                    <option value="">Selecione o Aluno...</option>
-                    {alunos.map(a => <option key={a.id} value={a.id}>{a.nome}</option>)}
-                  </select>
-                  <div className="flex gap-2">
-                    <button type="button" onClick={() => setShowModalAula(false)} className="flex-1 bg-slate-700 p-2 rounded-xl text-sm">Cancelar</button>
-                    <button type="submit" className="flex-1 bg-emerald-500 text-slate-950 font-bold p-2 rounded-xl text-sm">Agendar</button>
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => handleStatusAula(aula.id, 'Realizada')} className={`p-2 rounded-lg text-xs font-bold ${aula.status === 'Realizada' ? 'bg-emerald-500 text-slate-950' : 'bg-slate-700 text-slate-300'}`}>
+                      <Check size={14} />
+                    </button>
+                    <button onClick={() => enviarWhatsApp('5511999999999', aula.alunoNome, aula.dia, aula.hora)} className="p-2 bg-emerald-500/20 text-emerald-400 rounded-lg">
+                      <Phone size={14} />
+                    </button>
                   </div>
-                </form>
-              </div>
+                </div>
+              ))}
             </div>
-          )}
+          ))}
+        </main>
+      )}
 
-          {/* MENU INFERIOR FIXO */}
-          <nav className="fixed bottom-0 inset-x-0 bg-slate-800/95 border-t border-slate-700/60 px-6 py-3 flex items-center justify-around z-40 backdrop-blur-md">
-            <button onClick={() => setActiveTab('dashboard')} className={`flex flex-col items-center gap-1 ${activeTab === 'dashboard' ? 'text-emerald-400 font-bold' : 'text-slate-400'}`}>
-              <span className="text-xs">🏠 Início</span>
+      {/* 3. ABA ALUNOS */}
+      {activeTab === 'alunos' && (
+        <main className="p-4 space-y-4 max-w-lg mx-auto">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-bold text-slate-100">Alunos Cadastrados</h2>
+            <button onClick={() => setShowModalAluno(true)} className="bg-emerald-500 text-slate-950 font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1">
+              <Plus size={16} /> Novo Aluno
             </button>
-            <button onClick={() => setActiveTab('agenda')} className={`flex flex-col items-center gap-1 ${activeTab === 'agenda' ? 'text-emerald-400 font-bold' : 'text-slate-400'}`}>
-              <span className="text-xs">📅 Agenda</span>
-            </button>
-            <button onClick={() => setActiveTab('alunos')} className={`flex flex-col items-center gap-1 ${activeTab === 'alunos' ? 'text-emerald-400 font-bold' : 'text-slate-400'}`}>
-              <span className="text-xs">👥 Alunos</span>
-            </button>
-          </nav>
+          </div>
 
+          <div className="space-y-3">
+            {alunos.map(aluno => (
+              <div key={aluno.id} className="p-4 rounded-2xl bg-slate-800/80 border border-slate-700/50 space-y-1">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-bold text-slate-100">{aluno.nome}</h3>
+                  <span className="text-xs font-bold text-emerald-400">{hideValues ? '••••••' : `R$ ${aluno.valor}`}</span>
+                </div>
+                <p className="text-xs text-slate-400">{aluno.tipo}</p>
+                <div className="text-[10px] text-slate-500 pt-2 flex justify-between">
+                  <span>Início: {aluno.inicio}</span>
+                  <span>Término: {aluno.termino}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </main>
+      )}
+
+      {/* MODAL NOVO ALUNO */}
+      {showModalAluno && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-800 border border-slate-700 rounded-2xl p-5 w-full max-w-md space-y-3 shadow-2xl">
+            <div className="flex items-center justify-between">
+              <h3 className="font-bold text-slate-100">Cadastrar Novo Aluno</h3>
+              <button onClick={() => setShowModalAluno(false)} className="text-slate-400"><X size={20} /></button>
+            </div>
+            <form onSubmit={handleAdicionarAluno} className="space-y-3 text-xs">
+              <input type="text" placeholder="Nome Completo" required value={novoAluno.nome} onChange={e => setNovoAluno({...novoAluno, nome: e.target.value})} className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-slate-100" />
+              <input type="text" placeholder="Valor (R$)" required value={novoAluno.valor} onChange={e => setNovoAluno({...novoAluno, valor: e.target.value})} className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-slate-100" />
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-slate-400 block mb-1">Início do Plano</label>
+                  <input type="date" required value={novoAluno.inicio} onChange={e => setNovoAluno({...novoAluno, inicio: e.target.value})} className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2 text-slate-100" />
+                </div>
+                <div>
+                  <label className="text-slate-400 block mb-1">Término do Plano</label>
+                  <input type="date" required value={novoAluno.termino} onChange={e => setNovoAluno({...novoAluno, termino: e.target.value})} className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2 text-slate-100" />
+                </div>
+              </div>
+              <button type="submit" className="w-full bg-emerald-500 text-slate-950 py-3 rounded-xl font-bold mt-2">Salvar Aluno</button>
+            </form>
+          </div>
         </div>
-      );
-    }
+      )}
 
-    const container = document.getElementById('root');
-    const root = ReactDOM.createRoot(container);
-    root.render(<ProTrainerFinanceApp />);
-  </script>
-</body>
-</html>
+      {/* BOTTOM NAV */}
+      <nav className="fixed bottom-0 inset-x-0 bg-slate-800/95 border-t border-slate-700/60 px-6 py-3 flex items-center justify-around z-40">
+        <button onClick={() => setActiveTab('dashboard')} className={`flex flex-col items-center gap-1 ${activeTab === 'dashboard' ? 'text-emerald-400' : 'text-slate-400'}`}>
+          <Clock size={20} />
+          <span className="text-[10px]">Início</span>
+        </button>
+        <button onClick={() => setActiveTab('agenda')} className={`flex flex-col items-center gap-1 ${activeTab === 'agenda' ? 'text-emerald-400' : 'text-slate-400'}`}>
+          <Calendar size={20} />
+          <span className="text-[10px]">Agenda</span>
+        </button>
+        <button onClick={() => setActiveTab('alunos')} className={`flex flex-col items-center gap-1 ${activeTab === 'alunos' ? 'text-emerald-400' : 'text-slate-400'}`}>
+          <Users size={20} />
+          <span className="text-[10px]">Alunos</span>
+        </button>
+      </nav>
+
+    </div>
+  );
+}
