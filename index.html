@@ -1,648 +1,403 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ProTrainer Finance | Gestão FIT Inteligente</title>
-    <style>
-        :root {
-            --bg-primary: #121212;
-            --bg-card: #1e1e1e;
-            --accent-yellow: #FFD700;
-            --text-main: #FFFFFF;
-            --text-sub: #A0A0A0;
-            --status-green: #2ECC71;
-            --status-blue: #3498DB;
-            --status-red: #E74C3C;
-            --status-orange: #E67E22;
-            --status-blocked: #555555;
-        }
-
-        body {
-            margin: 0;
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            background-color: var(--bg-primary);
-            color: var(--text-main);
-        }
-
-        /* --- TELA DE AUTENTICAÇÃO (LOGIN / CADASTRO) --- */
-        .auth-container {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        .auth-card {
-            background-color: var(--bg-card);
-            border: 1px solid var(--accent-yellow);
-            border-radius: 12px;
-            padding: 30px;
-            width: 100%;
-            max-width: 400px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-        }
-
-        .auth-header {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-
-        .auth-title {
-            color: var(--accent-yellow);
-            font-size: 26px;
-            font-weight: 800;
-            margin: 0;
-        }
-
-        .auth-sub {
-            color: var(--text-sub);
-            font-size: 13px;
-            margin-top: 6px;
-        }
-
-        .auth-tabs {
-            display: flex;
-            border-bottom: 1px solid #333;
-            margin-bottom: 20px;
-        }
-
-        .auth-tab {
-            flex: 1;
-            text-align: center;
-            padding: 10px;
-            font-size: 14px;
-            font-weight: bold;
-            color: var(--text-sub);
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-        }
-
-        .auth-tab.active {
-            color: var(--accent-yellow);
-            border-bottom-color: var(--accent-yellow);
-        }
-
-        .btn-auth {
-            width: 100%;
-            background-color: var(--accent-yellow);
-            color: #000;
-            border: none;
-            padding: 12px;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 14px;
-            cursor: pointer;
-            margin-top: 15px;
-        }
-
-        .btn-auth:hover {
-            opacity: 0.9;
-        }
-
-        /* --- SISTEMA PRINCIPAL (DASHBOARD) --- */
-        #appDashboard {
-            display: none; /* Oculto até realizar login */
-        }
-
-        .top-navbar {
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            height: 60px;
-            background-color: var(--bg-card);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
-            border-bottom: 2px solid var(--accent-yellow);
-            z-index: 1000;
-        }
-
-        .user-profile-info { display: flex; align-items: center; gap: 12px; }
-        .user-avatar {
-            width: 40px; height: 40px; border-radius: 50%;
-            border: 2px solid var(--accent-yellow); background-color: #333;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: bold; color: var(--accent-yellow);
-        }
-        .user-details { display: flex; flex-direction: column; }
-        .user-name { font-size: 14px; font-weight: bold; }
-        .user-email { font-size: 11px; color: var(--text-sub); }
-
-        .plan-status-badge { display: flex; align-items: center; gap: 10px; }
-        .badge-trial {
-            background-color: rgba(255, 215, 0, 0.15); color: var(--accent-yellow);
-            padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: bold;
-            border: 1px solid var(--accent-yellow);
-        }
-        .btn-upgrade {
-            background-color: var(--accent-yellow); color: #000; border: none;
-            padding: 6px 14px; border-radius: 6px; font-weight: bold; cursor: pointer;
-        }
-
-        .main-container {
-            margin-top: 80px; padding: 20px; max-width: 1000px;
-            margin-left: auto; margin-right: auto;
-        }
-
-        .brand-header { text-align: center; margin-bottom: 25px; }
-        .brand-title { color: var(--accent-yellow); font-size: 28px; margin: 0; font-weight: 800; }
-        .brand-slogan { color: var(--text-sub); font-size: 14px; margin-top: 4px; font-style: italic; }
-
-        .section-box {
-            background-color: var(--bg-card); border-radius: 8px;
-            padding: 16px; margin-bottom: 25px; border: 1px solid #333;
-        }
-        .section-title { font-size: 16px; font-weight: bold; color: var(--accent-yellow); margin-bottom: 12px; }
-
-        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px; }
-        .metric-card { background-color: #252525; padding: 14px; border-radius: 6px; border-left: 4px solid var(--accent-yellow); }
-        .metric-label { font-size: 12px; color: var(--text-sub); }
-        .metric-val { font-size: 20px; font-weight: bold; margin-top: 4px; color: #fff; }
-
-        .student-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
-        .student-card {
-            background-color: #252525; padding: 14px; border-radius: 6px;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .student-status {
-            font-size: 10px; text-transform: uppercase; padding: 2px 6px;
-            border-radius: 4px; font-weight: bold; cursor: pointer;
-        }
-        .status-active { background-color: var(--status-green); color: #000; }
-        .status-inactive { background-color: var(--status-red); color: #fff; }
-
-        .class-card {
-            background-color: #252525; padding: 12px 16px; border-radius: 6px;
-            margin-bottom: 8px; display: flex; justify-content: space-between;
-            align-items: center; border-left: 5px solid var(--status-blue);
-        }
-        .class-card.status-realizada { border-left-color: var(--status-green); }
-        .class-card.status-falta { border-left-color: var(--status-red); }
-        .class-card.status-remarcada { border-left-color: var(--status-orange); }
-        .class-card.status-bloqueado { border-left-color: var(--status-blocked); background-color: #1a1a1a; opacity: 0.7; }
-
-        .class-info-name { font-weight: bold; font-size: 14px; }
-        .class-info-sub { font-size: 12px; color: var(--text-sub); }
-        .class-time { font-weight: bold; color: var(--accent-yellow); }
-
-        .btn-sm {
-            background: none; border: 1px solid #444; color: var(--text-sub);
-            border-radius: 4px; padding: 4px 8px; font-size: 11px; cursor: pointer; margin-left: 4px;
-        }
-        .btn-sm:hover { color: #fff; border-color: var(--accent-yellow); }
-        .btn-whatsapp { border-color: #25D366; color: #25D366; }
-        .btn-whatsapp:hover { background-color: #25D366; color: #000; }
-
-        .form-group { margin-bottom: 12px; }
-        .form-group label { display: block; font-size: 12px; color: var(--text-sub); margin-bottom: 4px; }
-        .form-control {
-            width: 100%; padding: 8px; background-color: #121212; border: 1px solid #333;
-            color: #fff; border-radius: 4px; box-sizing: border-box;
-        }
-
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.8); display: none; align-items: center;
-            justify-content: center; z-index: 2000;
-        }
-        .modal-content {
-            background-color: var(--bg-card); padding: 20px; border-radius: 8px;
-            width: 90%; max-width: 400px; border: 1px solid var(--accent-yellow);
-        }
-        .modal-title { font-size: 16px; font-weight: bold; color: var(--accent-yellow); margin-bottom: 12px; }
-        .modal-option {
-            background: #252525; padding: 10px; border-radius: 4px; margin-bottom: 8px;
-            cursor: pointer; font-size: 13px; border: 1px solid #333;
-        }
-        .modal-option:hover { border-color: var(--accent-yellow); color: var(--accent-yellow); }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ProTrainer Finance App</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- React & ReactDOM CDN -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  
+  <!-- Babel CDN para transpolar JSX -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body>
+<body class="bg-slate-900 text-slate-100 font-sans antialiased">
 
-    <!-- 1️⃣ TELA DE LOGIN / CADASTRO -->
-    <div class="auth-container" id="authScreen">
-        <div class="auth-card">
-            <div class="auth-header">
-                <h1 class="auth-title">ProTrainer Finance</h1>
-                <div class="auth-sub">Gestão FIT Inteligente</div>
-            </div>
+  <div id="root"></div>
 
-            <div class="auth-tabs">
-                <div class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">Entrar</div>
-                <div class="auth-tab" id="tabRegister" onclick="switchAuthTab('register')">Cadastrar</div>
-            </div>
+  <script type="text/babel">
+    const { useState, useEffect } = React;
 
-            <!-- FORMULÁRIO DE LOGIN -->
-            <form id="formLogin" onsubmit="handleLogin(event)">
-                <div class="form-group">
-                    <label>E-mail Profissional</label>
-                    <input type="email" id="loginEmail" class="form-control" placeholder="seu@email.com" required>
-                </div>
-                <div class="form-group">
-                    <label>Senha</label>
-                    <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required>
-                </div>
-                <button type="submit" class="btn-auth">Acessar Plataforma</button>
-            </form>
+    function ProTrainerFinanceApp() {
+      // --- ESTADOS E PERSISTÊNCIA (localStorage) ---
+      const [hideValues, setHideValues] = useState(false);
+      const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard', 'agenda', 'alunos', 'lembretes'
 
-            <!-- FORMULÁRIO DE CADASTRO -->
-            <form id="formRegister" style="display: none;" onsubmit="handleRegister(event)">
-                <div class="form-group">
-                    <label>Nome Completo</label>
-                    <input type="text" id="regName" class="form-control" placeholder="Ex: Fábio Coelho" required>
-                </div>
-                <div class="form-group">
-                    <label>E-mail Profissional</label>
-                    <input type="email" id="regEmail" class="form-control" placeholder="seu@email.com" required>
-                </div>
-                <div class="form-group">
-                    <label>Senha</label>
-                    <input type="password" id="regPassword" class="form-control" placeholder="••••••••" required>
-                </div>
-                <button type="submit" class="btn-auth">Criar Conta Gratuita</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- 2️⃣ APLICAÇÃO PRINCIPAL (DASHBOARD) -->
-    <div id="appDashboard">
-        <header class="top-navbar">
-            <div class="user-profile-info">
-                <div class="user-avatar" id="navAvatar">PT</div>
-                <div class="user-details">
-                    <span class="user-name" id="navName">Personal Trainer</span>
-                    <span class="user-email" id="navEmail">personal@protrainer.fit</span>
-                </div>
-            </div>
-            <div class="plan-status-badge">
-                <span class="badge-trial" id="navTrialDays">Teste Gratuito: 14 Dias Restantes</span>
-                <button class="btn-sm" onclick="handleLogout()" style="margin-right: 8px;">Sair</button>
-                <button class="btn-upgrade" onclick="alert('Redirecionando para assinatura Pro...')">Assinar Plano Pro</button>
-            </div>
-        </header>
-
-        <main class="main-container">
-            <div class="brand-header">
-                <h1 class="brand-title">ProTrainer Finance</h1>
-                <div class="brand-slogan">Gestão FIT Inteligente</div>
-            </div>
-
-            <section class="section-box">
-                <span class="section-title">📊 Resumo do Mês</span>
-                <div class="metrics-grid">
-                    <div class="metric-card">
-                        <div class="metric-label">Faturamento Previsto</div>
-                        <div class="metric-val" id="totalRevenue">R$ 0,00</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-label">Alunos Ativos</div>
-                        <div class="metric-val" id="activeStudentsCount">0</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-label">Aulas Agendadas Hoje</div>
-                        <div class="metric-val" id="todayClassesCount">0</div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="section-box">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <span class="section-title">📅 Aulas de Hoje</span>
-                    <button class="btn-sm" onclick="addBlockedSlot()">+ Bloquear Horário</button>
-                </div>
-                <div id="classList"></div>
-            </section>
-
-            <section class="section-box">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <span class="section-title">👥 Gestão de Alunos</span>
-                    <button class="btn-sm" onclick="toggleStudentForm()">+ Cadastrar Aluno</button>
-                </div>
-
-                <div id="studentForm" style="display: none; background-color: #1a1a1a; padding: 15px; border-radius: 6px; margin-bottom: 15px;">
-                    <div class="form-group">
-                        <label>Nome do Aluno</label>
-                        <input type="text" id="stuName" class="form-control" placeholder="Ex: Rodrigo Alves">
-                    </div>
-                    <div class="form-group">
-                        <label>Tipo de Atendimento</label>
-                        <select id="stuType" class="form-control">
-                            <option value="Presencial">Aluno de Personal Trainer (Presencial)</option>
-                            <option value="Online">Consultoria On-line</option>
-                            <option value="Creditos">Créditos de Aulas (Pacotes)</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Tipo do Plano</label>
-                        <select id="stuPlanType" class="form-control">
-                            <option value="Mensal">Mensal</option>
-                            <option value="Semestral">Semestral</option>
-                            <option value="Anual">Anual</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Valor da Mensalidade (R$)</label>
-                        <input type="number" id="stuPrice" class="form-control" placeholder="200.00">
-                    </div>
-                    <button class="btn-upgrade" style="width: 100%; margin-top: 10px;" onclick="saveStudent()">Salvar Aluno</button>
-                </div>
-
-                <div class="student-grid" id="studentsList"></div>
-            </section>
-        </main>
-
-        <!-- MODAIS DE FALTA E REMARCAÇÃO -->
-        <div class="modal-overlay" id="absenceModal">
-            <div class="modal-content">
-                <div class="modal-title">Registrar Motivo da Falta</div>
-                <div class="modal-option" onclick="confirmAbsence('Falta do aluno - Imprevisto')">🚨 Falta do aluno - Houve um imprevisto</div>
-                <div class="modal-option" onclick="confirmAbsence('Falta do aluno - Mal-estar')">🤒 Falta do aluno - Não está se sentindo bem</div>
-                <div class="modal-option" onclick="confirmAbsence('Cancelamento Antecipado')">📅 Cancelamento antecipado avisado</div>
-                <button class="btn-sm" style="width: 100%; margin-top: 10px;" onclick="closeModals()">Cancelar</button>
-            </div>
-        </div>
-
-        <div class="modal-overlay" id="rescheduleModal">
-            <div class="modal-content">
-                <div class="modal-title">Remarcar Aula & Enviar WhatsApp</div>
-                <p style="font-size: 12px; color: var(--text-sub);">Escolha um dos horários vagos disponíveis:</p>
-                <div class="modal-option" onclick="sendWhatsAppReschedule('Amanhã às 15:00')">🗓️ Amanhã às 15:00</div>
-                <div class="modal-option" onclick="sendWhatsAppReschedule('Sexta-feira às 10:00')">🗓️ Sexta-feira às 10:00</div>
-                <button class="btn-sm" style="width: 100%; margin-top: 10px;" onclick="closeModals()">Cancelar</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        let appData = {
-            user: null,
-            students: [],
-            classes: []
+      // Perfil e Teste Grátis
+      const [userProfile, setUserProfile] = useState(() => {
+        const saved = localStorage.getItem('pt_profile');
+        return saved ? JSON.parse(saved) : {
+          nome: 'Personal Trainer',
+          cref: '000000-G/UF',
+          whatsapp: '',
+          foto: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
+          dataInicioTeste: new Date().toISOString()
         };
+      });
 
-        let currentSelectedClassId = null;
-        let currentStudentName = '';
+      // Base de Dados: Alunos
+      const [alunos, setAlunos] = useState(() => {
+        const saved = localStorage.getItem('pt_alunos');
+        return saved ? JSON.parse(saved) : [];
+      });
 
-        // --- LÓGICA DE AUTENTICAÇÃO ---
-        function switchAuthTab(type) {
-            const tabLogin = document.getElementById('tabLogin');
-            const tabRegister = document.getElementById('tabRegister');
-            const formLogin = document.getElementById('formLogin');
-            const formRegister = document.getElementById('formRegister');
+      // Base de Dados: Agenda
+      const [aulas, setAulas] = useState(() => {
+        const saved = localStorage.getItem('pt_aulas');
+        return saved ? JSON.parse(saved) : [];
+      });
 
-            if (type === 'login') {
-                tabLogin.classList.add('active');
-                tabRegister.classList.remove('active');
-                formLogin.style.display = 'block';
-                formRegister.style.display = 'none';
-            } else {
-                tabRegister.classList.add('active');
-                tabLogin.classList.remove('active');
-                formRegister.style.display = 'block';
-                formLogin.style.display = 'none';
-            }
-        }
+      // Base de Dados: Lembretes
+      const [lembretes, setLembretes] = useState(() => {
+        const saved = localStorage.getItem('pt_lembretes');
+        return saved ? JSON.parse(saved) : [];
+      });
 
-        function handleLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            loginUser({ name: email.split('@')[0], email: email });
-        }
+      // Guardar alterações no localStorage
+      useEffect(() => {
+        localStorage.setItem('pt_profile', JSON.stringify(userProfile));
+      }, [userProfile]);
 
-        function handleRegister(e) {
-            e.preventDefault();
-            const name = document.getElementById('regName').value;
-            const email = document.getElementById('regEmail').value;
-            loginUser({ name: name, email: email });
-        }
+      useEffect(() => {
+        localStorage.setItem('pt_alunos', JSON.stringify(alunos));
+      }, [alunos]);
 
-        function loginUser(userData) {
-            appData.user = userData;
-            localStorage.setItem('protrainer_user', JSON.stringify(userData));
-            checkAuth();
-        }
+      useEffect(() => {
+        localStorage.setItem('pt_aulas', JSON.stringify(aulas));
+      }, [aulas]);
 
-        function handleLogout() {
-            localStorage.removeItem('protrainer_user');
-            appData.user = null;
-            document.getElementById('authScreen').style.display = 'flex';
-            document.getElementById('appDashboard').style.display = 'none';
-        }
+      useEffect(() => {
+        localStorage.setItem('pt_lembretes', JSON.stringify(lembretes));
+      }, [lembretes]);
 
-        function checkAuth() {
-            const storedUser = localStorage.getItem('protrainer_user');
-            if (storedUser) {
-                appData.user = JSON.parse(storedUser);
-                document.getElementById('authScreen').style.display = 'none';
-                document.getElementById('appDashboard').style.display = 'block';
+      // Modais
+      const [showModalLembrete, setShowModalLembrete] = useState(false);
+      const [novoLembrete, setNovoLembrete] = useState({ titulo: '', texto: '', prioridade: 'Amarelo', alunoId: '' });
 
-                // Atualizar dados de perfil na navbar
-                const initials = appData.user.name.slice(0,2).toUpperCase();
-                document.getElementById('navAvatar').innerText = initials;
-                document.getElementById('navName').innerText = appData.user.name;
-                document.getElementById('navEmail').innerText = appData.user.email;
+      const [showModalAluno, setShowModalAluno] = useState(false);
+      const [novoAluno, setNovoAluno] = useState({
+        nome: '', tipo: 'Aluno de Personal Trainer (Presencial)', plano: 'Mensal', valor: '', saldoCreditos: 0
+      });
 
-                loadData();
-            } else {
-                document.getElementById('authScreen').style.display = 'flex';
-                document.getElementById('appDashboard').style.display = 'none';
-            }
-        }
+      const [showModalAula, setShowModalAula] = useState(false);
+      const [novaAula, setNovaAula] = useState({ dia: 'Segunda', hora: '08:00', alunoId: '', modalidade: 'Presencial' });
 
-        // --- LÓGICA DO DASHBOARD ---
-        function loadData() {
-            const stored = localStorage.getItem('protrainer_data');
-            if (stored) {
-                const parsed = JSON.parse(stored);
-                appData.students = parsed.students || [];
-                appData.classes = parsed.classes || [];
-            } else {
-                appData.students = [{ id: 1, name: 'Rodrigo Alves', type: 'Presencial', price: 200, active: true }];
-                appData.classes = [
-                    { id: 1, name: 'Fernanda Lima', sub: 'Presencial • Aguardando aula', time: '09:00', status: 'status-agendada' },
-                    { id: 2, name: 'Horário Bloqueado / Indisponível', sub: 'Intervalo Almoço / Treino Pessoal', time: '12:00', status: 'status-bloqueado' }
-                ];
-                saveToStorage();
-            }
-            renderAll();
-        }
+      // Funções Lembretes
+      const handleAdicionarLembrete = (e) => {
+        e.preventDefault();
+        if (!novoLembrete.titulo) return;
+        const item = {
+          id: Date.now(),
+          titulo: novoLembrete.titulo,
+          texto: novoLembrete.texto,
+          prioridade: novoLembrete.prioridade,
+          data: new Date().toISOString().split('T')[0],
+          concluido: false,
+          alunoId: novoLembrete.alunoId ? Number(novoLembrete.alunoId) : null
+        };
+        setLembretes([item, ...lembretes]);
+        setShowModalLembrete(false);
+        setNovoLembrete({ titulo: '', texto: '', prioridade: 'Amarelo', alunoId: '' });
+      };
 
-        function saveToStorage() {
-            localStorage.setItem('protrainer_data', JSON.stringify({
-                students: appData.students,
-                classes: appData.classes
-            }));
-            renderAll();
-        }
+      const toggleLembrete = (id) => {
+        setLembretes(lembretes.map(l => l.id === id ? { ...l, concluido: !l.concluido } : l));
+      };
 
-        function renderAll() {
-            renderMetrics();
-            renderStudents();
-            renderClasses();
-        }
+      const deletarLembrete = (id) => {
+        setLembretes(lembretes.filter(l => l.id !== id));
+      };
 
-        function renderMetrics() {
-            const activeStudents = appData.students.filter(s => s.active);
-            const total = activeStudents.reduce((acc, s) => acc + Number(s.price || 0), 0);
+      // Funções Alunos
+      const handleAdicionarAluno = (e) => {
+        e.preventDefault();
+        if (!novoAluno.nome || !novoAluno.valor) return;
+        const item = {
+          id: Date.now(),
+          nome: novoAluno.nome,
+          tipo: novoAluno.tipo,
+          plano: novoAluno.plano,
+          valor: Number(novoAluno.valor),
+          inicio: new Date().toISOString().split('T')[0],
+          status: 'Ativo',
+          saldoCreditos: Number(novoAluno.saldoCreditos) || 0
+        };
+        setAlunos([...alunos, item]);
+        setShowModalAluno(false);
+        setNovoAluno({ nome: '', tipo: 'Aluno de Personal Trainer (Presencial)', plano: 'Mensal', valor: '', saldoCreditos: 0 });
+      };
 
-            document.getElementById('totalRevenue').innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
-            document.getElementById('activeStudentsCount').innerText = activeStudents.length;
-            document.getElementById('todayClassesCount').innerText = appData.classes.length;
-        }
+      const deletarAluno = (id) => {
+        setAlunos(alunos.filter(a => a.id !== id));
+      };
 
-        function renderStudents() {
-            const container = document.getElementById('studentsList');
-            container.innerHTML = '';
+      // Funções Agenda
+      const handleAdicionarAula = (e) => {
+        e.preventDefault();
+        if (!novaAula.alunoId) return;
+        const alunoObj = alunos.find(a => a.id === Number(novaAula.alunoId));
+        const item = {
+          id: Date.now(),
+          dia: novaAula.dia,
+          hora: novaAula.hora,
+          alunoId: Number(novaAula.alunoId),
+          alunoNome: alunoObj ? alunoObj.nome : 'Aluno',
+          modalidade: novaAula.modalidade,
+          status: 'Agendada'
+        };
+        setAulas([...aulas, item]);
+        setShowModalAula(false);
+      };
 
-            appData.students.forEach(s => {
-                const card = document.createElement('div');
-                card.className = 'student-card';
-                card.innerHTML = `
-                    <div>
-                        <div style="font-weight: bold;">${s.name}</div>
-                        <div style="font-size: 12px; color: var(--text-sub);">${s.type}</div>
-                        <div style="font-size: 11px; color: var(--accent-yellow);">R$ ${Number(s.price).toFixed(2).replace('.', ',')}</div>
+      const deletarAula = (id) => {
+        setAulas(aulas.filter(a => a.id !== id));
+      };
+
+      // Cálculos Financeiros
+      const totalRecebido = alunos.reduce((acc, a) => acc + (a.status === 'Ativo' ? Number(a.valor) : 0), 0);
+
+      // Cálculo de Teste de 14 dias
+      const dataInicio = new Date(userProfile.dataInicioTeste);
+      const hoje = new Date();
+      const diasPassados = Math.floor((hoje - dataInicio) / (1000 * 60 * 60 * 24));
+      const diasRestantes = Math.max(0, 14 - diasPassados);
+
+      return (
+        <div className="min-h-screen bg-slate-900 text-slate-100 font-sans pb-24">
+          
+          {/* CABEÇALHO FIXO */}
+          <header className="sticky top-0 z-40 bg-slate-800/90 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <img src={userProfile.foto} alt="Perfil" className="w-10 h-10 rounded-full border-2 border-emerald-500 object-cover" />
+              <div>
+                <h1 className="text-sm font-bold text-slate-100 leading-tight">ProTrainer Finance</h1>
+                <p className="text-xs text-emerald-400 font-medium">Gestão FIT Inteligente</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className={`text-[10px] uppercase tracking-wider px-2 py-1 rounded-full font-bold ${diasRestantes > 0 ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-red-500/20 text-red-300'}`}>
+                {diasRestantes > 0 ? `Teste: ${diasRestantes} dias` : 'Expirado'}
+              </span>
+              <button onClick={() => setHideValues(!hideValues)} className="p-2 rounded-lg bg-slate-700/50 hover:bg-slate-700 text-slate-300 transition">
+                {hideValues ? '🙈' : '👁️'}
+              </button>
+            </div>
+          </header>
+
+          {/* DASHBOARD */}
+          {activeTab === 'dashboard' && (
+            <main className="p-4 space-y-6 max-w-lg mx-auto">
+              <section className="grid grid-cols-2 gap-3">
+                <div className="bg-slate-800/60 p-4 rounded-2xl border border-slate-700/50">
+                  <span className="text-xs text-slate-400 block font-medium">Faturação Total</span>
+                  <span className="text-xl font-extrabold text-emerald-400">
+                    {hideValues ? '••••••' : `R$ ${totalRecebido.toFixed(2)}`}
+                  </span>
+                </div>
+                <div className="bg-slate-800/60 p-4 rounded-2xl border border-slate-700/50">
+                  <span className="text-xs text-slate-400 block font-medium">Alunos Ativos</span>
+                  <span className="text-xl font-extrabold text-amber-400">
+                    {alunos.filter(a => a.status === 'Ativo').length}
+                  </span>
+                </div>
+              </section>
+
+              {/* CENTRAL DE LEMBRETES */}
+              <section className="bg-slate-800/60 p-4 rounded-2xl border border-slate-700/50 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-sm font-bold text-slate-200">Central de Lembretes</h2>
+                  <button 
+                    onClick={() => setShowModalLembrete(true)}
+                    className="text-xs bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-3 py-1.5 rounded-lg transition"
+                  >
+                    + Criar
+                  </button>
+                </div>
+
+                <div className="space-y-2">
+                  {lembretes.length === 0 ? (
+                    <p className="text-xs text-slate-500 text-center py-4">Nenhum lembrete registado.</p>
+                  ) : (
+                    lembretes.map((item) => {
+                      const corBorda = item.prioridade === 'Vermelho' ? 'border-red-500' : item.prioridade === 'Amarelo' ? 'border-amber-500' : 'border-blue-500';
+                      return (
+                        <div key={item.id} className={`p-3 rounded-xl bg-slate-900/60 border-l-4 ${corBorda} border-y border-r border-slate-700/40 flex items-start justify-between gap-2`}>
+                          <div className="flex items-start gap-2.5">
+                            <button onClick={() => toggleLembrete(item.id)} className={`mt-0.5 w-4 h-4 rounded border flex items-center justify-center ${item.concluido ? 'bg-emerald-500 border-emerald-500 text-slate-950 text-xs font-bold' : 'border-slate-500'}`}>
+                              {item.concluido && '✓'}
+                            </button>
+                            <div>
+                              <h4 className={`text-xs font-bold ${item.concluido ? 'line-through text-slate-500' : 'text-slate-200'}`}>{item.titulo}</h4>
+                              <p className={`text-xs mt-0.5 ${item.concluido ? 'line-through text-slate-600' : 'text-slate-400'}`}>{item.texto}</p>
+                            </div>
+                          </div>
+                          <button onClick={() => deletarLembrete(item.id)} className="text-slate-500 hover:text-red-400 text-xs px-1">✕</button>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </section>
+            </main>
+          )}
+
+          {/* AGENDA DA SEMANA */}
+          {activeTab === 'agenda' && (
+            <main className="p-4 space-y-4 max-w-lg mx-auto">
+              <div className="flex items-center justify-between">
+                <h2 className="text-base font-bold text-slate-100">Agenda Semanal</h2>
+                <button onClick={() => setShowModalAula(true)} className="text-xs bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-3 py-1.5 rounded-lg transition">
+                  + Nova Aula
+                </button>
+              </div>
+
+              {aulas.length === 0 ? (
+                <p className="text-xs text-slate-500 text-center py-8">Nenhuma aula agendada.</p>
+              ) : (
+                <div className="space-y-2">
+                  {aulas.map((aula) => (
+                    <div key={aula.id} className="p-3 bg-slate-800/60 rounded-xl border border-slate-700/50 flex items-center justify-between">
+                      <div>
+                        <span className="text-[10px] bg-slate-700 text-emerald-400 px-2 py-0.5 rounded font-bold">{aula.dia} - {aula.hora}</span>
+                        <h4 className="text-sm font-bold text-slate-100 mt-1">{aula.alunoNome}</h4>
+                        <p className="text-xs text-slate-400">{aula.modalidade}</p>
+                      </div>
+                      <button onClick={() => deletarAula(aula.id)} className="text-slate-500 hover:text-red-400 text-xs p-1">✕</button>
                     </div>
-                    <div>
-                        <span class="student-status ${s.active ? 'status-active' : 'status-inactive'}" onclick="toggleStudentStatus(${s.id})">
-                            ${s.active ? 'Ativo' : 'Inativo'}
-                        </span>
+                  ))}
+                </div>
+              )}
+            </main>
+          )}
+
+          {/* ALUNOS */}
+          {activeTab === 'alunos' && (
+            <main className="p-4 space-y-4 max-w-lg mx-auto">
+              <div className="flex items-center justify-between">
+                <h2 className="text-base font-bold text-slate-100">Gestão de Alunos</h2>
+                <button onClick={() => setShowModalAluno(true)} className="text-xs bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-3 py-1.5 rounded-lg transition">
+                  + Novo Aluno
+                </button>
+              </div>
+
+              {alunos.length === 0 ? (
+                <p className="text-xs text-slate-500 text-center py-8">Nenhum aluno cadastrado.</p>
+              ) : (
+                <div className="space-y-3">
+                  {alunos.map((aluno) => (
+                    <div key={aluno.id} className="p-4 bg-slate-800/60 rounded-xl border border-slate-700/50 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-bold text-slate-100">{aluno.nome}</h3>
+                        <span className="text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-semibold">{aluno.status}</span>
+                      </div>
+                      <p className="text-xs text-slate-400">{aluno.tipo} • {aluno.plano}</p>
+                      <div className="flex items-center justify-between pt-2 border-t border-slate-700/40 text-xs">
+                        <span className="font-bold text-emerald-400">{hideValues ? '••••••' : `R$ ${Number(aluno.valor).toFixed(2)}`}</span>
+                        <button onClick={() => deletarAluno(aluno.id)} className="text-red-400 hover:underline">Eliminar</button>
+                      </div>
                     </div>
-                `;
-                container.appendChild(card);
-            });
-        }
+                  ))}
+                </div>
+              )}
+            </main>
+          )}
 
-        function renderClasses() {
-            const container = document.getElementById('classList');
-            container.innerHTML = '';
+          {/* MODAIS */}
+          {/* Modal Lembrete */}
+          {showModalLembrete && (
+            <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-slate-800 border border-slate-700 rounded-2xl p-5 w-full max-w-md space-y-4">
+                <h3 className="font-bold text-slate-100">Novo Lembrete</h3>
+                <form onSubmit={handleAdicionarLembrete} className="space-y-3">
+                  <input type="text" required placeholder="Título" value={novoLembrete.titulo} onChange={(e) => setNovoLembrete({ ...novoLembrete, titulo: e.target.value })} className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm" />
+                  <select value={novoLembrete.prioridade} onChange={(e) => setNovoLembrete({ ...novoLembrete, prioridade: e.target.value })} className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm">
+                    <option value="Vermelho">Vermelho (Urgente)</option>
+                    <option value="Amarelo">Amarelo (Aviso)</option>
+                    <option value="Azul">Azul (Geral)</option>
+                  </select>
+                  <textarea rows="3" placeholder="Detalhes" value={novoLembrete.texto} onChange={(e) => setNovoLembrete({ ...novoLembrete, texto: e.target.value })} className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm resize-none"></textarea>
+                  <div className="flex gap-2">
+                    <button type="button" onClick={() => setShowModalLembrete(false)} className="flex-1 bg-slate-700 p-2 rounded-xl text-sm">Cancelar</button>
+                    <button type="submit" className="flex-1 bg-emerald-500 text-slate-950 font-bold p-2 rounded-xl text-sm">Salvar</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
 
-            appData.classes.forEach(c => {
-                const card = document.createElement('div');
-                card.className = `class-card ${c.status}`;
-                card.id = `class-${c.id}`;
+          {/* Modal Aluno */}
+          {showModalAluno && (
+            <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-slate-800 border border-slate-700 rounded-2xl p-5 w-full max-w-md space-y-4">
+                <h3 className="font-bold text-slate-100">Registar Novo Aluno</h3>
+                <form onSubmit={handleAdicionarAluno} className="space-y-3">
+                  <input type="text" required placeholder="Nome do Aluno" value={novoAluno.nome} onChange={(e) => setNovoAluno({ ...novoAluno, nome: e.target.value })} className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm" />
+                  <select value={novoAluno.tipo} onChange={(e) => setNovoAluno({ ...novoAluno, tipo: e.target.value })} className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm">
+                    <option>Aluno Presencial</option>
+                    <option>Créditos de Aulas</option>
+                    <option>Consultoria On-line</option>
+                  </select>
+                  <input type="number" required placeholder="Valor (R$)" value={novoAluno.valor} onChange={(e) => setNovoAluno({ ...novoAluno, valor: e.target.value })} className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm" />
+                  <div className="flex gap-2">
+                    <button type="button" onClick={() => setShowModalAluno(false)} className="flex-1 bg-slate-700 p-2 rounded-xl text-sm">Cancelar</button>
+                    <button type="submit" className="flex-1 bg-emerald-500 text-slate-950 font-bold p-2 rounded-xl text-sm">Salvar Aluno</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
 
-                let actions = '';
-                if (c.status === 'status-bloqueado') {
-                    actions = `<button class="btn-sm" onclick="removeClass(${c.id})">Desbloquear</button>`;
-                } else {
-                    actions = `
-                        <button class="btn-sm" onclick="openAbsenceModal(${c.id}, '${c.name}')">Falta</button>
-                        <button class="btn-sm btn-whatsapp" onclick="openRescheduleModal(${c.id}, '${c.name}')">Remarcar</button>
-                    `;
-                }
+          {/* Modal Aula */}
+          {showModalAula && (
+            <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-slate-800 border border-slate-700 rounded-2xl p-5 w-full max-w-md space-y-4">
+                <h3 className="font-bold text-slate-100">Agendar Aula</h3>
+                <form onSubmit={handleAdicionarAula} className="space-y-3">
+                  <select value={novaAula.dia} onChange={(e) => setNovaAula({ ...novaAula, dia: e.target.value })} className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm">
+                    <option>Segunda</option><option>Terça</option><option>Quarta</option><option>Quinta</option><option>Sexta</option><option>Sábado</option>
+                  </select>
+                  <input type="time" value={novaAula.hora} onChange={(e) => setNovaAula({ ...novaAula, hora: e.target.value })} className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm" />
+                  <select value={novaAula.alunoId} onChange={(e) => setNovaAula({ ...novaAula, alunoId: e.target.value })} className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm" required>
+                    <option value="">Selecione o Aluno...</option>
+                    {alunos.map(a => <option key={a.id} value={a.id}>{a.nome}</option>)}
+                  </select>
+                  <div className="flex gap-2">
+                    <button type="button" onClick={() => setShowModalAula(false)} className="flex-1 bg-slate-700 p-2 rounded-xl text-sm">Cancelar</button>
+                    <button type="submit" className="flex-1 bg-emerald-500 text-slate-950 font-bold p-2 rounded-xl text-sm">Agendar</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
 
-                card.innerHTML = `
-                    <div>
-                        <div class="class-info-name" style="${c.status === 'status-bloqueado' ? 'color:#888' : ''}">${c.name}</div>
-                        <div class="class-info-sub">${c.sub}</div>
-                    </div>
-                    <div>
-                        <span class="class-time" style="${c.status === 'status-bloqueado' ? 'color:#888' : ''}">${c.time}</span>
-                        ${actions}
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
+          {/* MENU INFERIOR FIXO */}
+          <nav className="fixed bottom-0 inset-x-0 bg-slate-800/95 border-t border-slate-700/60 px-6 py-3 flex items-center justify-around z-40 backdrop-blur-md">
+            <button onClick={() => setActiveTab('dashboard')} className={`flex flex-col items-center gap-1 ${activeTab === 'dashboard' ? 'text-emerald-400 font-bold' : 'text-slate-400'}`}>
+              <span className="text-xs">🏠 Início</span>
+            </button>
+            <button onClick={() => setActiveTab('agenda')} className={`flex flex-col items-center gap-1 ${activeTab === 'agenda' ? 'text-emerald-400 font-bold' : 'text-slate-400'}`}>
+              <span className="text-xs">📅 Agenda</span>
+            </button>
+            <button onClick={() => setActiveTab('alunos')} className={`flex flex-col items-center gap-1 ${activeTab === 'alunos' ? 'text-emerald-400 font-bold' : 'text-slate-400'}`}>
+              <span className="text-xs">👥 Alunos</span>
+            </button>
+          </nav>
 
-        function toggleStudentForm() {
-            const form = document.getElementById('studentForm');
-            form.style.display = form.style.display === 'none' ? 'block' : 'none';
-        }
+        </div>
+      );
+    }
 
-        function saveStudent() {
-            const name = document.getElementById('stuName').value;
-            const type = document.getElementById('stuType').value;
-            const price = document.getElementById('stuPrice').value;
-
-            if (!name) return alert("Digite o nome do aluno.");
-
-            appData.students.push({
-                id: Date.now(),
-                name,
-                type,
-                price: parseFloat(price) || 0,
-                active: true
-            });
-
-            saveToStorage();
-            toggleStudentForm();
-            document.getElementById('stuName').value = '';
-            document.getElementById('stuPrice').value = '';
-        }
-
-        function toggleStudentStatus(id) {
-            const student = appData.students.find(s => s.id === id);
-            if (student) {
-                student.active = !student.active;
-                saveToStorage();
-            }
-        }
-
-        function removeClass(id) {
-            appData.classes = appData.classes.filter(c => c.id !== id);
-            saveToStorage();
-        }
-
-        function addBlockedSlot() {
-            appData.classes.push({
-                id: Date.now(),
-                name: 'Horário Bloqueado / Indisponível',
-                sub: 'Intervalo Personalizado',
-                time: '13:00',
-                status: 'status-bloqueado'
-            });
-            saveToStorage();
-        }
-
-        function openAbsenceModal(classId, studentName) {
-            currentSelectedClassId = classId;
-            currentStudentName = studentName;
-            document.getElementById('absenceModal').style.display = 'flex';
-        }
-
-        function openRescheduleModal(classId, studentName) {
-            currentSelectedClassId = classId;
-            currentStudentName = studentName;
-            document.getElementById('rescheduleModal').style.display = 'flex';
-        }
-
-        function closeModals() {
-            document.getElementById('absenceModal').style.display = 'none';
-            document.getElementById('rescheduleModal').style.display = 'none';
-        }
-
-        function confirmAbsence(reason) {
-            const cls = appData.classes.find(c => c.id === currentSelectedClassId);
-            if (cls) {
-                cls.status = 'status-falta';
-                cls.sub = reason;
-                saveToStorage();
-            }
-            closeModals();
-        }
-
-        function sendWhatsAppReschedule(newTime) {
-            const cls = appData.classes.find(c => c.id === currentSelectedClassId);
-            if (cls) {
-                cls.status = 'status-remarcada';
-                cls.sub = `Remarcada para ${newTime}`;
-                saveToStorage();
-            }
-
-            const message = encodeURIComponent(`Olá ${currentStudentName}! Tudo bem? Remarquei a sua aula para ${newTime}. Te aguardo lá! 💪🏋️‍♂️`);
-            const whatsappUrl = `https://api.whatsapp.com/send?text=${message}`;
-
-            closeModals();
-            window.open(whatsappUrl, '_blank');
-        }
-
-        // Executar checagem inicial
-        window.onload = checkAuth;
-    </script>
+    const container = document.getElementById('root');
+    const root = ReactDOM.createRoot(container);
+    root.render(<ProTrainerFinanceApp />);
+  </script>
 </body>
 </html>
