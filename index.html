@@ -25,6 +25,88 @@
             color: var(--text-main);
         }
 
+        /* --- TELA DE AUTENTICAÇÃO (LOGIN / CADASTRO) --- */
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .auth-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--accent-yellow);
+            border-radius: 12px;
+            padding: 30px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .auth-title {
+            color: var(--accent-yellow);
+            font-size: 26px;
+            font-weight: 800;
+            margin: 0;
+        }
+
+        .auth-sub {
+            color: var(--text-sub);
+            font-size: 13px;
+            margin-top: 6px;
+        }
+
+        .auth-tabs {
+            display: flex;
+            border-bottom: 1px solid #333;
+            margin-bottom: 20px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--text-sub);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+
+        .auth-tab.active {
+            color: var(--accent-yellow);
+            border-bottom-color: var(--accent-yellow);
+        }
+
+        .btn-auth {
+            width: 100%;
+            background-color: var(--accent-yellow);
+            color: #000;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        .btn-auth:hover {
+            opacity: 0.9;
+        }
+
+        /* --- SISTEMA PRINCIPAL (DASHBOARD) --- */
+        #appDashboard {
+            display: none; /* Oculto até realizar login */
+        }
+
         .top-navbar {
             position: fixed;
             top: 0; left: 0; right: 0;
@@ -140,114 +222,163 @@
 </head>
 <body>
 
-    <header class="top-navbar">
-        <div class="user-profile-info">
-            <div class="user-avatar" id="navAvatar">PT</div>
-            <div class="user-details">
-                <span class="user-name" id="navName">Personal Trainer</span>
-                <span class="user-email" id="navEmail">personal@protrainer.fit</span>
-            </div>
-        </div>
-        <div class="plan-status-badge">
-            <span class="badge-trial" id="navTrialDays">Teste Gratuito: 14 Dias Restantes</span>
-            <button class="btn-upgrade" onclick="alert('Redirecionando para assinatura Pro...')">Assinar Plano Pro</button>
-        </div>
-    </header>
-
-    <main class="main-container">
-        <div class="brand-header">
-            <h1 class="brand-title">ProTrainer Finance</h1>
-            <div class="brand-slogan">Gestão FIT Inteligente</div>
-        </div>
-
-        <section class="section-box">
-            <span class="section-title">📊 Resumo do Mês</span>
-            <div class="metrics-grid">
-                <div class="metric-card">
-                    <div class="metric-label">Faturamento Previsto</div>
-                    <div class="metric-val" id="totalRevenue">R$ 0,00</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label">Alunos Ativos</div>
-                    <div class="metric-val" id="activeStudentsCount">0</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label">Aulas Agendadas Hoje</div>
-                    <div class="metric-val" id="todayClassesCount">0</div>
-                </div>
-            </div>
-        </section>
-
-        <section class="section-box">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <span class="section-title">📅 Aulas de Hoje</span>
-                <button class="btn-sm" onclick="addBlockedSlot()">+ Bloquear Horário</button>
-            </div>
-            <div id="classList"></div>
-        </section>
-
-        <section class="section-box">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <span class="section-title">👥 Gestão de Alunos</span>
-                <button class="btn-sm" onclick="toggleStudentForm()">+ Cadastrar Aluno</button>
+    <!-- 1️⃣ TELA DE LOGIN / CADASTRO -->
+    <div class="auth-container" id="authScreen">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1 class="auth-title">ProTrainer Finance</h1>
+                <div class="auth-sub">Gestão FIT Inteligente</div>
             </div>
 
-            <div id="studentForm" style="display: none; background-color: #1a1a1a; padding: 15px; border-radius: 6px; margin-bottom: 15px;">
+            <div class="auth-tabs">
+                <div class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">Entrar</div>
+                <div class="auth-tab" id="tabRegister" onclick="switchAuthTab('register')">Cadastrar</div>
+            </div>
+
+            <!-- FORMULÁRIO DE LOGIN -->
+            <form id="formLogin" onsubmit="handleLogin(event)">
                 <div class="form-group">
-                    <label>Nome do Aluno</label>
-                    <input type="text" id="stuName" class="form-control" placeholder="Ex: Rodrigo Alves">
+                    <label>E-mail Profissional</label>
+                    <input type="email" id="loginEmail" class="form-control" placeholder="seu@email.com" required>
                 </div>
                 <div class="form-group">
-                    <label>Tipo de Atendimento</label>
-                    <select id="stuType" class="form-control">
-                        <option value="Presencial">Aluno de Personal Trainer (Presencial)</option>
-                        <option value="Online">Consultoria On-line</option>
-                        <option value="Creditos">Créditos de Aulas (Pacotes)</option>
-                    </select>
+                    <label>Senha</label>
+                    <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn-auth">Acessar Plataforma</button>
+            </form>
+
+            <!-- FORMULÁRIO DE CADASTRO -->
+            <form id="formRegister" style="display: none;" onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label>Nome Completo</label>
+                    <input type="text" id="regName" class="form-control" placeholder="Ex: Fábio Coelho" required>
                 </div>
                 <div class="form-group">
-                    <label>Tipo do Plano</label>
-                    <select id="stuPlanType" class="form-control">
-                        <option value="Mensal">Mensal</option>
-                        <option value="Semestral">Semestral</option>
-                        <option value="Anual">Anual</option>
-                    </select>
+                    <label>E-mail Profissional</label>
+                    <input type="email" id="regEmail" class="form-control" placeholder="seu@email.com" required>
                 </div>
                 <div class="form-group">
-                    <label>Valor da Mensalidade (R$)</label>
-                    <input type="number" id="stuPrice" class="form-control" placeholder="200.00">
+                    <label>Senha</label>
+                    <input type="password" id="regPassword" class="form-control" placeholder="••••••••" required>
                 </div>
-                <button class="btn-upgrade" style="width: 100%; margin-top: 10px;" onclick="saveStudent()">Salvar Aluno</button>
-            </div>
-
-            <div class="student-grid" id="studentsList"></div>
-        </section>
-    </main>
-
-    <!-- MODAL FALTA -->
-    <div class="modal-overlay" id="absenceModal">
-        <div class="modal-content">
-            <div class="modal-title">Registrar Motivo da Falta</div>
-            <div class="modal-option" onclick="confirmAbsence('Falta do aluno - Imprevisto')">🚨 Falta do aluno - Houve um imprevisto</div>
-            <div class="modal-option" onclick="confirmAbsence('Falta do aluno - Mal-estar')">🤒 Falta do aluno - Não está se sentindo bem</div>
-            <div class="modal-option" onclick="confirmAbsence('Cancelamento Antecipado')">📅 Cancelamento antecipado avisado</div>
-            <button class="btn-sm" style="width: 100%; margin-top: 10px;" onclick="closeModals()">Cancelar</button>
+                <button type="submit" class="btn-auth">Criar Conta Gratuita</button>
+            </form>
         </div>
     </div>
 
-    <!-- MODAL REMARCAÇÃO -->
-    <div class="modal-overlay" id="rescheduleModal">
-        <div class="modal-content">
-            <div class="modal-title">Remarcar Aula & Enviar WhatsApp</div>
-            <p style="font-size: 12px; color: var(--text-sub);">Escolha um dos horários vagos disponíveis:</p>
-            <div class="modal-option" onclick="sendWhatsAppReschedule('Amanhã às 15:00')">🗓️ Amanhã às 15:00</div>
-            <div class="modal-option" onclick="sendWhatsAppReschedule('Sexta-feira às 10:00')">🗓️ Sexta-feira às 10:00</div>
-            <button class="btn-sm" style="width: 100%; margin-top: 10px;" onclick="closeModals()">Cancelar</button>
+    <!-- 2️⃣ APLICAÇÃO PRINCIPAL (DASHBOARD) -->
+    <div id="appDashboard">
+        <header class="top-navbar">
+            <div class="user-profile-info">
+                <div class="user-avatar" id="navAvatar">PT</div>
+                <div class="user-details">
+                    <span class="user-name" id="navName">Personal Trainer</span>
+                    <span class="user-email" id="navEmail">personal@protrainer.fit</span>
+                </div>
+            </div>
+            <div class="plan-status-badge">
+                <span class="badge-trial" id="navTrialDays">Teste Gratuito: 14 Dias Restantes</span>
+                <button class="btn-sm" onclick="handleLogout()" style="margin-right: 8px;">Sair</button>
+                <button class="btn-upgrade" onclick="alert('Redirecionando para assinatura Pro...')">Assinar Plano Pro</button>
+            </div>
+        </header>
+
+        <main class="main-container">
+            <div class="brand-header">
+                <h1 class="brand-title">ProTrainer Finance</h1>
+                <div class="brand-slogan">Gestão FIT Inteligente</div>
+            </div>
+
+            <section class="section-box">
+                <span class="section-title">📊 Resumo do Mês</span>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">Faturamento Previsto</div>
+                        <div class="metric-val" id="totalRevenue">R$ 0,00</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Alunos Ativos</div>
+                        <div class="metric-val" id="activeStudentsCount">0</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Aulas Agendadas Hoje</div>
+                        <div class="metric-val" id="todayClassesCount">0</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section-box">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <span class="section-title">📅 Aulas de Hoje</span>
+                    <button class="btn-sm" onclick="addBlockedSlot()">+ Bloquear Horário</button>
+                </div>
+                <div id="classList"></div>
+            </section>
+
+            <section class="section-box">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <span class="section-title">👥 Gestão de Alunos</span>
+                    <button class="btn-sm" onclick="toggleStudentForm()">+ Cadastrar Aluno</button>
+                </div>
+
+                <div id="studentForm" style="display: none; background-color: #1a1a1a; padding: 15px; border-radius: 6px; margin-bottom: 15px;">
+                    <div class="form-group">
+                        <label>Nome do Aluno</label>
+                        <input type="text" id="stuName" class="form-control" placeholder="Ex: Rodrigo Alves">
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo de Atendimento</label>
+                        <select id="stuType" class="form-control">
+                            <option value="Presencial">Aluno de Personal Trainer (Presencial)</option>
+                            <option value="Online">Consultoria On-line</option>
+                            <option value="Creditos">Créditos de Aulas (Pacotes)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo do Plano</label>
+                        <select id="stuPlanType" class="form-control">
+                            <option value="Mensal">Mensal</option>
+                            <option value="Semestral">Semestral</option>
+                            <option value="Anual">Anual</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Valor da Mensalidade (R$)</label>
+                        <input type="number" id="stuPrice" class="form-control" placeholder="200.00">
+                    </div>
+                    <button class="btn-upgrade" style="width: 100%; margin-top: 10px;" onclick="saveStudent()">Salvar Aluno</button>
+                </div>
+
+                <div class="student-grid" id="studentsList"></div>
+            </section>
+        </main>
+
+        <!-- MODAIS DE FALTA E REMARCAÇÃO -->
+        <div class="modal-overlay" id="absenceModal">
+            <div class="modal-content">
+                <div class="modal-title">Registrar Motivo da Falta</div>
+                <div class="modal-option" onclick="confirmAbsence('Falta do aluno - Imprevisto')">🚨 Falta do aluno - Houve um imprevisto</div>
+                <div class="modal-option" onclick="confirmAbsence('Falta do aluno - Mal-estar')">🤒 Falta do aluno - Não está se sentindo bem</div>
+                <div class="modal-option" onclick="confirmAbsence('Cancelamento Antecipado')">📅 Cancelamento antecipado avisado</div>
+                <button class="btn-sm" style="width: 100%; margin-top: 10px;" onclick="closeModals()">Cancelar</button>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="rescheduleModal">
+            <div class="modal-content">
+                <div class="modal-title">Remarcar Aula & Enviar WhatsApp</div>
+                <p style="font-size: 12px; color: var(--text-sub);">Escolha um dos horários vagos disponíveis:</p>
+                <div class="modal-option" onclick="sendWhatsAppReschedule('Amanhã às 15:00')">🗓️ Amanhã às 15:00</div>
+                <div class="modal-option" onclick="sendWhatsAppReschedule('Sexta-feira às 10:00')">🗓️ Sexta-feira às 10:00</div>
+                <button class="btn-sm" style="width: 100%; margin-top: 10px;" onclick="closeModals()">Cancelar</button>
+            </div>
         </div>
     </div>
 
     <script>
         let appData = {
+            user: null,
             students: [],
             classes: []
         };
@@ -255,25 +386,95 @@
         let currentSelectedClassId = null;
         let currentStudentName = '';
 
-        function loadFromStorage() {
+        // --- LÓGICA DE AUTENTICAÇÃO ---
+        function switchAuthTab(type) {
+            const tabLogin = document.getElementById('tabLogin');
+            const tabRegister = document.getElementById('tabRegister');
+            const formLogin = document.getElementById('formLogin');
+            const formRegister = document.getElementById('formRegister');
+
+            if (type === 'login') {
+                tabLogin.classList.add('active');
+                tabRegister.classList.remove('active');
+                formLogin.style.display = 'block';
+                formRegister.style.display = 'none';
+            } else {
+                tabRegister.classList.add('active');
+                tabLogin.classList.remove('active');
+                formRegister.style.display = 'block';
+                formLogin.style.display = 'none';
+            }
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            loginUser({ name: email.split('@')[0], email: email });
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+            loginUser({ name: name, email: email });
+        }
+
+        function loginUser(userData) {
+            appData.user = userData;
+            localStorage.setItem('protrainer_user', JSON.stringify(userData));
+            checkAuth();
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('protrainer_user');
+            appData.user = null;
+            document.getElementById('authScreen').style.display = 'flex';
+            document.getElementById('appDashboard').style.display = 'none';
+        }
+
+        function checkAuth() {
+            const storedUser = localStorage.getItem('protrainer_user');
+            if (storedUser) {
+                appData.user = JSON.parse(storedUser);
+                document.getElementById('authScreen').style.display = 'none';
+                document.getElementById('appDashboard').style.display = 'block';
+
+                // Atualizar dados de perfil na navbar
+                const initials = appData.user.name.slice(0,2).toUpperCase();
+                document.getElementById('navAvatar').innerText = initials;
+                document.getElementById('navName').innerText = appData.user.name;
+                document.getElementById('navEmail').innerText = appData.user.email;
+
+                loadData();
+            } else {
+                document.getElementById('authScreen').style.display = 'flex';
+                document.getElementById('appDashboard').style.display = 'none';
+            }
+        }
+
+        // --- LÓGICA DO DASHBOARD ---
+        function loadData() {
             const stored = localStorage.getItem('protrainer_data');
             if (stored) {
-                appData = JSON.parse(stored);
+                const parsed = JSON.parse(stored);
+                appData.students = parsed.students || [];
+                appData.classes = parsed.classes || [];
             } else {
-                appData = {
-                    students: [{ id: 1, name: 'Rodrigo Alves', type: 'Presencial', price: 200, active: true }],
-                    classes: [
-                        { id: 1, name: 'Fernanda Lima', sub: 'Presencial • Aguardando aula', time: '09:00', status: 'status-agendada' },
-                        { id: 2, name: 'Horário Bloqueado / Indisponível', sub: 'Intervalo Almoço / Treino Pessoal', time: '12:00', status: 'status-bloqueado' }
-                    ]
-                };
+                appData.students = [{ id: 1, name: 'Rodrigo Alves', type: 'Presencial', price: 200, active: true }];
+                appData.classes = [
+                    { id: 1, name: 'Fernanda Lima', sub: 'Presencial • Aguardando aula', time: '09:00', status: 'status-agendada' },
+                    { id: 2, name: 'Horário Bloqueado / Indisponível', sub: 'Intervalo Almoço / Treino Pessoal', time: '12:00', status: 'status-bloqueado' }
+                ];
                 saveToStorage();
             }
             renderAll();
         }
 
         function saveToStorage() {
-            localStorage.setItem('protrainer_data', JSON.stringify(appData));
+            localStorage.setItem('protrainer_data', JSON.stringify({
+                students: appData.students,
+                classes: appData.classes
+            }));
             renderAll();
         }
 
@@ -440,7 +641,8 @@
             window.open(whatsappUrl, '_blank');
         }
 
-        window.onload = loadFromStorage;
+        // Executar checagem inicial
+        window.onload = checkAuth;
     </script>
 </body>
 </html>
